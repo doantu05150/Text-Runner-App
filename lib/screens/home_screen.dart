@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import '../text_runner.dart';
+import '../widgets/text_input_widget.dart';
+import '../widgets/action_bar_widget.dart';
+import '../models/saved_item.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,8 +13,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _displayText = '';
-  bool _isRunning = false;
   final TextEditingController _controller = TextEditingController(
     text: 'Hello, TextRunner!',
   );
@@ -23,8 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Input height tracking
   double _inputHeight = 0;
+  double _maxInputHeight = 0;
   final double _verticalPadding = 24; // 12px top + 12px bottom
-  final GlobalKey _inputKey = GlobalKey();
+  
+  bool get _shouldExpandInput => _inputHeight >= _maxInputHeight;
 
   // Temporary settings for dialog
   late double _tempFontSize;
@@ -101,11 +105,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final appBarHeight = AppBar().preferredSize.height + MediaQuery.of(context).padding.top;
     final buttonHeight = 56.0; // ElevatedButton with padding
     final bodyPadding = 48.0; // 24 * 2
+    final actionBarHeight = 40.0; // Action bar + SizedBox
     final spacing = 24.0;
-    final maxInputHeight = screenHeight - appBarHeight - bodyPadding - buttonHeight - spacing;
+    _maxInputHeight = screenHeight - appBarHeight - bodyPadding - buttonHeight - spacing - actionBarHeight;
 
     setState(() {
-      _inputHeight = calculatedHeight.clamp(lineHeight + _verticalPadding, maxInputHeight);
+      _inputHeight = calculatedHeight.clamp(lineHeight + _verticalPadding, _maxInputHeight);
     });
   }
 
@@ -114,30 +119,57 @@ class _HomeScreenState extends State<HomeScreen> {
     return _fontSize * 1.2;
   }
 
-  void _startTextRunner() async {
-    if (_isRunning) return;
-    
-    setState(() {
-      _isRunning = true;
-      _displayText = '';
-    });
-    
-    final runner = TextRunner(
-      text: _controller.text,
-      speed: const Duration(milliseconds: 50),
-    );
-    
-    await for (final text in runner.run()) {
-      if (mounted) {
-        setState(() {
-          _displayText = text;
-        });
-      }
+  Future<void> _saveText() async {
+    if (_controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập văn bản trước khi lưu')),
+      );
+      return;
     }
+
+    final prefs = await SharedPreferences.getInstance();
+    final savedItemsJson = prefs.getStringList('saved_items') ?? [];
     
-    setState(() {
-      _isRunning = false;
-    });
+    final savedItem = SavedItem(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      text: _controller.text,
+      fontSize: _fontSize,
+      fontFamily: _fontFamily,
+      textColorValue: _textColor.toARGB32(),
+      backgroundColorValue: _backgroundColor.toARGB32(),
+      createdAt: DateTime.now(),
+    );
+
+    savedItemsJson.add(jsonEncode(savedItem.toJson()));
+    await prefs.setStringList('saved_items', savedItemsJson);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã lưu văn bản thành công')),
+      );
+    }
+  }
+
+  void _startTextRunner() {
+    if (_controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập văn bản trước khi chạy')),
+      );
+      return;
+    }
+
+    Navigator.pushNamed(
+      context,
+      '/run',
+      arguments: {
+        'text': _controller.text,
+        'fontSize': _fontSize,
+        'fontFamily': _fontFamily,
+        'textColor': _textColor,
+        'backgroundColor': _backgroundColor,
+        'speed': 150.0, // pixels per second
+      },
+    );
   }
 
   void _showSettingsDialog() {
@@ -395,69 +427,51 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Input section with settings icon
-            Container(
-              key: _inputKey,
-              height: _inputHeight > 0 ? _inputHeight : _calculateLineHeight() + _verticalPadding,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Stack(
-                children: [
-                  // Text input
-                  Positioned.fill(
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      child: TextField(
-                        controller: _controller,
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
-                        textAlignVertical: TextAlignVertical.top,
-                        style: TextStyle(
-                          fontSize: _fontSize,
-                          fontFamily: _fontFamily,
-                          color: _textColor,
-                          height: 1.2,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Nhập văn bản...',
-                          hintStyle: TextStyle(
-                            fontSize: _fontSize,
-                            fontFamily: _fontFamily,
-                            color: _textColor.withOpacity(0.5),
-                            height: 1.2,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          border: InputBorder.none,
-                          filled: false,
-                          isDense: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Settings icon
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: IconButton(
-                      icon: const Icon(Icons.settings),
-                      onPressed: _showSettingsDialog,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
+            // Action Bar - Settings and Save icons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ActionBarWidget(
+                  iconColor: _appBarTextColor,
+                  onSettingsPressed: _showSettingsDialog,
+                  onSavePressed: _saveText,
+                ),
+              ],
             ),
+            const SizedBox(height: 8),
+            // Input section
+            _shouldExpandInput
+                ? Expanded(
+                    child: TextInputWidget(
+                      controller: _controller,
+                      fontSize: _fontSize,
+                      fontFamily: _fontFamily,
+                      textColor: _textColor,
+                      inputHeight: _inputHeight,
+                      verticalPadding: _verticalPadding,
+                      onChanged: _onTextChanged,
+                      shouldExpand: true,
+                    ),
+                  )
+                : TextInputWidget(
+                    controller: _controller,
+                    fontSize: _fontSize,
+                    fontFamily: _fontFamily,
+                    textColor: _textColor,
+                    inputHeight: _inputHeight,
+                    verticalPadding: _verticalPadding,
+                    onChanged: _onTextChanged,
+                    shouldExpand: false,
+                  ),
             const SizedBox(height: 24),
 
             // Play Button
             ElevatedButton.icon(
-              onPressed: _isRunning ? null : _startTextRunner,
+              onPressed: _startTextRunner,
               icon: const Icon(Icons.play_arrow, size: 28),
-              label: Text(
-                _isRunning ? 'Đang chạy...' : 'Chạy chữ',
-                style: const TextStyle(fontSize: 18),
+              label: const Text(
+                'Chạy chữ',
+                style: TextStyle(fontSize: 18),
               ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),

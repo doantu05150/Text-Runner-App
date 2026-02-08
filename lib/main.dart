@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/home_screen.dart';
+import 'screens/run_screen.dart';
 import 'screens/saved_screen.dart';
 
 void main() {
@@ -23,9 +24,25 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       initialRoute: '/',
-      routes: {
-        '/': (context) => const HomeScreen(),
-        '/saved': (context) => const SavedScreen(),
+      onGenerateRoute: (settings) {
+        if (settings.name == '/') {
+          return MaterialPageRoute(builder: (context) => const HomeScreen());
+        } else if (settings.name == '/saved') {
+          return MaterialPageRoute(builder: (context) => const SavedScreen());
+        } else if (settings.name == '/run') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (context) => RunScreen(
+              text: args['text'] as String,
+              fontSize: args['fontSize'] as double,
+              fontFamily: args['fontFamily'] as String,
+              textColor: args['textColor'] as Color,
+              backgroundColor: args['backgroundColor'] as Color,
+              speed: args['speed'] as double? ?? 100.0,
+            ),
+          );
+        }
+        return null;
       },
     );
   }
