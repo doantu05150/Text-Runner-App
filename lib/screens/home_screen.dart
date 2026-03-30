@@ -205,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 80, child: Text('Cỡ chữ:')),
                       Expanded(
                         child: DropdownButtonFormField<double>(
-                          value: _tempFontSize,
+                          initialValue: _tempFontSize,
                           isExpanded: true,
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -236,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 80, child: Text('Font chữ:')),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: _tempFontFamily,
+                          initialValue: _tempFontFamily,
                           isExpanded: true,
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
