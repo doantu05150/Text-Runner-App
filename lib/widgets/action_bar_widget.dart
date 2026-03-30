@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_button.dart';
 
 class ActionBarWidget extends StatelessWidget {
   final Color iconColor;
@@ -17,13 +18,14 @@ class ActionBarWidget extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          icon: Icon(Icons.save, color: iconColor),
+        AppIconButton(
+          icon: Icons.save_rounded,
           onPressed: onSavePressed,
           tooltip: 'Lưu văn bản',
         ),
-        IconButton(
-          icon: Icon(Icons.settings, color: iconColor),
+        const SizedBox(width: 8),
+        AppIconButton(
+          icon: Icons.tune_rounded,
           onPressed: onSettingsPressed,
           tooltip: 'Cài đặt',
         ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import '../widgets/text_input_widget.dart';
 import '../widgets/action_bar_widget.dart';
+import '../widgets/app_button.dart';
 import '../models/saved_item.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,14 +22,14 @@ class _HomeScreenState extends State<HomeScreen> {
   // Settings
   double _fontSize = 36;
   String _fontFamily = 'Roboto';
-  Color _textColor = Colors.black;
-  Color _backgroundColor = Colors.white;
+  Color _textColor = Colors.white;
+  Color _backgroundColor = AppColors.bgMain;
 
   // Input height tracking
   double _inputHeight = 0;
   double _maxInputHeight = 0;
   final double _verticalPadding = 24; // 12px top + 12px bottom
-  
+
   bool get _shouldExpandInput => _inputHeight >= _maxInputHeight;
 
   // Temporary settings for dialog
@@ -122,14 +124,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _saveText() async {
     if (_controller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập văn bản trước khi lưu')),
+        SnackBar(
+          content: const Text('Vui lòng nhập văn bản trước khi lưu'),
+          backgroundColor: AppColors.bgCard,
+        ),
       );
       return;
     }
 
     final prefs = await SharedPreferences.getInstance();
     final savedItemsJson = prefs.getStringList('saved_items') ?? [];
-    
+
     final savedItem = SavedItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       text: _controller.text,
@@ -145,7 +150,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã lưu văn bản thành công')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20),
+              const SizedBox(width: 8),
+              const Text('Đã lưu văn bản thành công'),
+            ],
+          ),
+          backgroundColor: AppColors.bgCard,
+        ),
       );
     }
   }
@@ -153,7 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _startTextRunner() {
     if (_controller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập văn bản trước khi chạy')),
+        SnackBar(
+          content: const Text('Vui lòng nhập văn bản trước khi chạy'),
+          backgroundColor: AppColors.bgCard,
+        ),
       );
       return;
     }
@@ -184,132 +201,97 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Row(
+            backgroundColor: AppColors.bgCard,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: AppColors.border),
+            ),
+            title: Row(
               children: [
-                Icon(Icons.settings),
-                SizedBox(width: 8),
-                Text('Cài đặt'),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySoft,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Cài đặt',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
             content: SizedBox(
-              width: 400,
+              width: 420,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Font Size Dropdown
-                  Row(
-                    children: [
-                      const Icon(Icons.format_size, size: 20),
-                      const SizedBox(width: 8),
-                      const SizedBox(width: 80, child: Text('Cỡ chữ:')),
-                      Expanded(
-                        child: DropdownButtonFormField<double>(
-                          initialValue: _tempFontSize,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _fontSizeOptions.map((size) => DropdownMenuItem(
-                            value: size,
-                            child: Text('${size.toInt()}px'),
-                          )).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setDialogState(() {
-                                _tempFontSize = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ],
+                  // Font Size
+                  _buildSettingRow(
+                    icon: Icons.format_size_rounded,
+                    label: 'Cỡ chữ',
+                    child: _buildDropdown<double>(
+                      value: _tempFontSize,
+                      items: _fontSizeOptions.map((size) => DropdownMenuItem(
+                        value: size,
+                        child: Text('${size.toInt()}px', style: const TextStyle(color: AppColors.textPrimary)),
+                      )).toList(),
+                      onChanged: (value) {
+                        if (value != null) setDialogState(() => _tempFontSize = value);
+                      },
+                    ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Font Family Dropdown
-                  Row(
-                    children: [
-                      const Icon(Icons.font_download, size: 20),
-                      const SizedBox(width: 8),
-                      const SizedBox(width: 80, child: Text('Font chữ:')),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          initialValue: _tempFontFamily,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _fontFamilyOptions.map((font) => DropdownMenuItem(
-                            value: font,
-                            child: Text(font, overflow: TextOverflow.ellipsis),
-                          )).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setDialogState(() {
-                                _tempFontFamily = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ],
+                  // Font Family
+                  _buildSettingRow(
+                    icon: Icons.font_download_rounded,
+                    label: 'Font chữ',
+                    child: _buildDropdown<String>(
+                      value: _tempFontFamily,
+                      items: _fontFamilyOptions.map((font) => DropdownMenuItem(
+                        value: font,
+                        child: Text(font, style: const TextStyle(color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
+                      )).toList(),
+                      onChanged: (value) {
+                        if (value != null) setDialogState(() => _tempFontFamily = value);
+                      },
+                    ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Text Color Picker
-                  Row(
-                    children: [
-                      const Icon(Icons.palette, size: 20),
-                      const SizedBox(width: 8),
-                      const SizedBox(width: 80, child: Text('Màu chữ:')),
-                      GestureDetector(
-                        onTap: () => _showColorPickerInDialog(setDialogState, true),
-                        child: Container(
-                          width: 80,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: _tempTextColor,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                    ],
+                  // Text Color
+                  _buildSettingRow(
+                    icon: Icons.palette_rounded,
+                    label: 'Màu chữ',
+                    child: _buildColorSwatch(_tempTextColor, () => _showColorPickerInDialog(setDialogState, true)),
                   ),
                   const SizedBox(height: 16),
 
-                  // Background Color Picker
-                  Row(
-                    children: [
-                      const Icon(Icons.format_color_fill, size: 20),
-                      const SizedBox(width: 8),
-                      const SizedBox(width: 80, child: Text('Màu nền:')),
-                      GestureDetector(
-                        onTap: () => _showColorPickerInDialog(setDialogState, false),
-                        child: Container(
-                          width: 80,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: _tempBackgroundColor,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                    ],
+                  // Background Color
+                  _buildSettingRow(
+                    icon: Icons.format_color_fill_rounded,
+                    label: 'Màu nền',
+                    child: _buildColorSwatch(_tempBackgroundColor, () => _showColorPickerInDialog(setDialogState, false)),
                   ),
                 ],
               ),
             ),
+            actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             actions: [
-              TextButton(
+              AppButton(
+                isPrimary: false,
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Hủy'),
               ),
-              ElevatedButton(
+              const SizedBox(width: 8),
+              AppButton(
                 onPressed: () {
                   setState(() {
                     _fontSize = _tempFontSize;
@@ -328,6 +310,76 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSettingRow({required IconData icon, required String label, required Widget child}) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: AppColors.textSecondary),
+        const SizedBox(width: 12),
+        SizedBox(
+          width: 80,
+          child: Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        ),
+        Expanded(child: child),
+      ],
+    );
+  }
+
+  Widget _buildDropdown<T>({required T value, required List<DropdownMenuItem<T>> items, required ValueChanged<T?> onChanged}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColors.bgMain,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          isExpanded: true,
+          dropdownColor: AppColors.bgCard,
+          items: items,
+          onChanged: onChanged,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorSwatch(Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: AppColors.bgMain,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'monospace'),
+            ),
+            const Spacer(),
+            const Icon(Icons.colorize_rounded, size: 18, color: AppColors.textMuted),
+          ],
+        ),
       ),
     );
   }
@@ -357,37 +409,75 @@ class _HomeScreenState extends State<HomeScreen> {
       Colors.blueGrey,
     ];
 
+    final currentColor = isTextColor ? _tempTextColor : _tempBackgroundColor;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isTextColor ? 'Chọn màu chữ' : 'Chọn màu nền'),
-        content: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: colors.map((color) => GestureDetector(
-            onTap: () {
-              setDialogState(() {
-                if (isTextColor) {
-                  _tempTextColor = color;
-                } else {
-                  _tempBackgroundColor = color;
-                }
-              });
-              Navigator.pop(context);
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          )).toList(),
+        backgroundColor: AppColors.bgCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.border),
         ),
+        title: Text(
+          isTextColor ? 'Chọn màu chữ' : 'Chọn màu nền',
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: colors.map((color) {
+            final isSelected = color.toARGB32() == currentColor.toARGB32();
+            return GestureDetector(
+              onTap: () {
+                setDialogState(() {
+                  if (isTextColor) {
+                    _tempTextColor = color;
+                  } else {
+                    _tempBackgroundColor = color;
+                  }
+                });
+                Navigator.pop(context);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? AppColors.primary : AppColors.border,
+                    width: isSelected ? 2.5 : 1,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.35),
+                            blurRadius: 12,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: isSelected
+                    ? Icon(
+                        Icons.check_rounded,
+                        size: 20,
+                        color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+                      )
+                    : null,
+              ),
+            );
+          }).toList(),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         actions: [
-          TextButton(
+          AppButton(
+            isPrimary: false,
             onPressed: () => Navigator.pop(context),
             child: const Text('Hủy'),
           ),
@@ -396,43 +486,52 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Color get _appBarTextColor {
-    if (_backgroundColor == Colors.white) return Colors.black;
-    return _backgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: AppColors.bgMain,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: _appBarTextColor),
-        title: Text(
-          'Text Runner',
-          style: TextStyle(color: _appBarTextColor),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.primarySoft,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.text_fields_rounded, color: AppColors.primary, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Text Runner',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.bookmark, color: _appBarTextColor),
-            onPressed: () {
-              Navigator.pushNamed(context, '/saved');
-            },
+          AppIconButton(
+            icon: Icons.bookmark_rounded,
+            onPressed: () => Navigator.pushNamed(context, '/saved'),
+            tooltip: 'Đã lưu',
           ),
+          const SizedBox(width: 12),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Action Bar - Settings and Save icons
+            // Action Bar
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ActionBarWidget(
-                  iconColor: _appBarTextColor,
+                  iconColor: AppColors.textSecondary,
                   onSettingsPressed: _showSettingsDialog,
                   onSavePressed: _saveText,
                 ),
@@ -463,18 +562,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     onChanged: _onTextChanged,
                     shouldExpand: false,
                   ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Play Button
-            ElevatedButton.icon(
+            AppButton(
               onPressed: _startTextRunner,
-              icon: const Icon(Icons.play_arrow, size: 28),
-              label: const Text(
+              icon: Icons.play_arrow_rounded,
+              child: const Text(
                 'Chạy chữ',
-                style: TextStyle(fontSize: 18),
-              ),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ],

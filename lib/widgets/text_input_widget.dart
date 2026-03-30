@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class TextInputWidget extends StatelessWidget {
   final TextEditingController controller;
@@ -24,13 +25,18 @@ class TextInputWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       height: shouldExpand ? null : (inputHeight > 0 ? inputHeight : fontSize * 1.2 + verticalPadding),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.bgCard,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: _buildTextField(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: _buildTextField(),
+      ),
     );
   }
 
@@ -42,6 +48,7 @@ class TextInputWidget extends StatelessWidget {
       keyboardType: TextInputType.multiline,
       textAlignVertical: TextAlignVertical.top,
       onChanged: (_) => onChanged?.call(),
+      cursorColor: AppColors.primary,
       style: TextStyle(
         fontSize: fontSize,
         fontFamily: fontFamily,
@@ -53,11 +60,13 @@ class TextInputWidget extends StatelessWidget {
         hintStyle: TextStyle(
           fontSize: fontSize,
           fontFamily: fontFamily,
-          color: textColor.withValues(alpha: 0.5),
+          color: AppColors.textMuted,
           height: 1.2,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
         filled: false,
         isDense: true,
       ),
