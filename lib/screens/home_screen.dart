@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/text_input_widget.dart';
 import '../widgets/action_bar_widget.dart';
+import '../widgets/preview_run_widget.dart';
 import '../widgets/app_button.dart';
 import '../models/saved_item.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,12 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Color _textColor = Colors.white;
   Color _backgroundColor = AppColors.bgMain;
 
-  // Input height tracking
-  double _inputHeight = 0;
-  double _maxInputHeight = 0;
-  final double _verticalPadding = 24; // 12px top + 12px bottom
+  static const double _inputFontSize = 18.0;
+  static const double _minInputHeight = 56.0;
+  static const double _verticalPadding = 34.0; // 16*2 contentPadding + 1*2 border
 
-  bool get _shouldExpandInput => _inputHeight >= _maxInputHeight;
+  // Input height
+  double _inputHeight = _minInputHeight;
+
+  // Preview (debounced)
+  String _previewText = 'Hello, TextRunner!';
+  Timer? _debounceTimer;
 
   // Temporary settings for dialog
   late double _tempFontSize;
@@ -58,67 +64,58 @@ class _HomeScreenState extends State<HomeScreen> {
     _tempTextColor = _textColor;
     _tempBackgroundColor = _backgroundColor;
     _controller.addListener(_onTextChanged);
-    // Initial height calculation after first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateInputHeight();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
   }
 
   void _onTextChanged() {
     _updateInputHeight();
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted) setState(() => _previewText = _controller.text);
+    });
   }
 
   void _updateInputHeight() {
     final text = _controller.text;
     if (text.isEmpty) {
-      setState(() {
-        _inputHeight = _calculateLineHeight() + _verticalPadding;
-      });
+      setState(() => _inputHeight = _minInputHeight);
       return;
     }
 
-    final lineHeight = _calculateLineHeight();
-    final textSpan = TextSpan(
-      text: text,
-      style: TextStyle(
-        fontSize: _fontSize,
-        fontFamily: _fontFamily,
-        height: 1.2,
-      ),
-    );
-
-    // Get available width for input (screen width - body padding - container padding)
-    final screenWidth = MediaQuery.of(context).size.width;
-    final availableWidth = screenWidth - 48 - 32; // 24*2 body padding + 16*2 container padding
+    final size = MediaQuery.of(context).size;
+    final availableWidth = size.width - 40 - 32; // body + container padding
 
     final textPainter = TextPainter(
-      text: textSpan,
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(fontSize: _inputFontSize, height: 1.2),
+      ),
       textDirection: TextDirection.ltr,
       maxLines: null,
-    );
-    textPainter.layout(maxWidth: availableWidth);
+    )..layout(maxWidth: availableWidth);
 
-    // Calculate number of lines
     final lineCount = textPainter.computeLineMetrics().length;
-    final calculatedHeight = (lineCount * lineHeight) + _verticalPadding;
-
-    // Get max available height for input
-    final screenHeight = MediaQuery.of(context).size.height;
-    final appBarHeight = AppBar().preferredSize.height + MediaQuery.of(context).padding.top;
-    final buttonHeight = 56.0; // ElevatedButton with padding
-    final bodyPadding = 48.0; // 24 * 2
-    final actionBarHeight = 40.0; // Action bar + SizedBox
-    final spacing = 24.0;
-    _maxInputHeight = screenHeight - appBarHeight - bodyPadding - buttonHeight - spacing - actionBarHeight;
+    final contentHeight = (lineCount * _inputFontSize * 1.2) + _verticalPadding;
 
     setState(() {
-      _inputHeight = calculatedHeight.clamp(lineHeight + _verticalPadding, _maxInputHeight);
+      _inputHeight = contentHeight.clamp(_minInputHeight, _calculateMaxInputHeight());
     });
   }
 
-  double _calculateLineHeight() {
-    // Line height = fontSize * 1.2 (standard line height multiplier)
-    return _fontSize * 1.2;
+  double _calculateMaxInputHeight() {
+    final size = MediaQuery.of(context).size;
+    final topPadding = MediaQuery.of(context).padding.top;
+    final previewHeight = (size.width - 40) * size.width / size.height;
+    return size.height
+        - (kToolbarHeight + topPadding) // app bar
+        - 8.0  // body top padding
+        - 20.0 // body bottom padding
+        - 40.0 // action bar
+        - 12.0 // gap after action bar
+        - previewHeight
+        - 12.0 // gap after preview
+        - 16.0 // gap after input
+        - 56.0; // play button
   }
 
   Future<void> _saveText() async {
@@ -298,10 +295,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     _fontFamily = _tempFontFamily;
                     _textColor = _tempTextColor;
                     _backgroundColor = _tempBackgroundColor;
-                  });
-                  // Update input height after font size change
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _updateInputHeight();
                   });
                   Navigator.pop(context);
                 },
@@ -493,6 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        titleSpacing: 20,
         title: Row(
           children: [
             Container(
@@ -518,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => Navigator.pushNamed(context, '/saved'),
             tooltip: 'Đã lưu',
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 20),
         ],
       ),
       body: Padding(
@@ -537,32 +531,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+            // Preview
+            PreviewRunWidget(
+              text: _previewText,
+              fontSize: _fontSize,
+              fontFamily: _fontFamily,
+              textColor: _textColor,
+              backgroundColor: _backgroundColor,
+              speed: 150.0,
+            ),
+            const SizedBox(height: 12),
             // Input section
-            _shouldExpandInput
-                ? Expanded(
-                    child: TextInputWidget(
-                      controller: _controller,
-                      fontSize: _fontSize,
-                      fontFamily: _fontFamily,
-                      textColor: _textColor,
-                      inputHeight: _inputHeight,
-                      verticalPadding: _verticalPadding,
-                      onChanged: _onTextChanged,
-                      shouldExpand: true,
-                    ),
-                  )
-                : TextInputWidget(
-                    controller: _controller,
-                    fontSize: _fontSize,
-                    fontFamily: _fontFamily,
-                    textColor: _textColor,
-                    inputHeight: _inputHeight,
-                    verticalPadding: _verticalPadding,
-                    onChanged: _onTextChanged,
-                    shouldExpand: false,
-                  ),
-            const SizedBox(height: 20),
+            TextInputWidget(
+              controller: _controller,
+              fontSize: _inputFontSize,
+              fontFamily: _fontFamily,
+              textColor: _textColor,
+              inputHeight: _inputHeight,
+              verticalPadding: _verticalPadding,
+              onChanged: _onTextChanged,
+              shouldExpand: false,
+            ),
+            const SizedBox(height: 16),
 
             // Play Button
             AppButton(
@@ -581,6 +572,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _controller.removeListener(_onTextChanged);
     _controller.dispose();
     super.dispose();
