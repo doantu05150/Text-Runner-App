@@ -115,7 +115,7 @@ class _RunScreenState extends State<RunScreen>
     return Scaffold(
       backgroundColor: widget.backgroundColor,
       body: GestureDetector(
-        onTap: () => Navigator.pop(context),
+        onDoubleTap: () => Navigator.pop(context),
         child: Container(
           width: double.infinity,
           height: double.infinity,
