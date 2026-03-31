@@ -114,7 +114,9 @@ class _RunScreenState extends State<RunScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: widget.backgroundColor,
-      body: GestureDetector(
+      body: RotatedBox(
+        quarterTurns: 1,
+        child: GestureDetector(
         onDoubleTap: () => Navigator.pop(context),
         child: Container(
           width: double.infinity,
@@ -156,6 +158,7 @@ class _RunScreenState extends State<RunScreen>
                   ),
                 ),
         ),
+      ),
       ),
     );
   }
