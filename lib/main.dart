@@ -38,9 +38,10 @@ class MyApp extends StatelessWidget {
               text: args['text'] as String,
               fontSize: args['fontSize'] as double,
               fontFamily: args['fontFamily'] as String,
+              fontWeight: args['fontWeight'] as FontWeight? ?? FontWeight.normal,
               textColor: args['textColor'] as Color,
               backgroundColor: args['backgroundColor'] as Color,
-              speed: args['speed'] as double? ?? 100.0,
+              speed: args['speed'] as double? ?? 150.0,
             ),
           );
         }

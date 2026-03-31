@@ -4,6 +4,7 @@ class RunScreen extends StatefulWidget {
   final String text;
   final double fontSize;
   final String fontFamily;
+  final FontWeight fontWeight;
   final Color textColor;
   final Color backgroundColor;
   final double speed;
@@ -13,6 +14,7 @@ class RunScreen extends StatefulWidget {
     required this.text,
     required this.fontSize,
     required this.fontFamily,
+    this.fontWeight = FontWeight.normal,
     required this.textColor,
     required this.backgroundColor,
     this.speed = 50.0,
@@ -62,6 +64,7 @@ class _RunScreenState extends State<RunScreen>
       style: TextStyle(
         fontSize: widget.fontSize,
         fontFamily: widget.fontFamily,
+        fontWeight: widget.fontWeight,
       ),
     );
     final textPainter = TextPainter(
@@ -138,6 +141,7 @@ class _RunScreenState extends State<RunScreen>
                               style: TextStyle(
                                 fontSize: widget.fontSize,
                                 fontFamily: widget.fontFamily,
+                                fontWeight: widget.fontWeight,
                                 color: widget.textColor,
                               ),
                             ),
@@ -153,6 +157,7 @@ class _RunScreenState extends State<RunScreen>
                     style: TextStyle(
                       fontSize: widget.fontSize,
                       fontFamily: widget.fontFamily,
+                      fontWeight: widget.fontWeight,
                       color: widget.textColor,
                     ),
                   ),

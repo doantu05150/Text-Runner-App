@@ -22,10 +22,12 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   // Settings
-  double _fontSize = 36;
+  double _fontSize = 72;
   String _fontFamily = 'Roboto';
+  FontWeight _fontWeight = FontWeight.normal;
   Color _textColor = Colors.white;
   Color _backgroundColor = AppColors.bgMain;
+  double _speed = 150.0;
 
   static const double _inputFontSize = 18.0;
   static const double _minInputHeight = 56.0;
@@ -41,10 +43,25 @@ class _HomeScreenState extends State<HomeScreen> {
   // Temporary settings for dialog
   late double _tempFontSize;
   late String _tempFontFamily;
+  late FontWeight _tempFontWeight;
   late Color _tempTextColor;
   late Color _tempBackgroundColor;
+  late double _tempSpeed;
 
-  final List<double> _fontSizeOptions = [12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72];
+  final List<double> _fontSizeOptions = List.generate(
+    ((240 - 56) ~/ 4) + 1,
+    (i) => (56 + i * 4).toDouble(),
+  );
+
+  static const _fontWeightOptions = [
+    (label: 'Thin', weight: FontWeight.w100),
+    (label: 'Light', weight: FontWeight.w300),
+    (label: 'Regular', weight: FontWeight.w400),
+    (label: 'Medium', weight: FontWeight.w500),
+    (label: 'Bold', weight: FontWeight.w700),
+    (label: 'Black', weight: FontWeight.w900),
+  ];
+
   final List<String> _fontFamilyOptions = [
     'Roboto',
     'Arial',
@@ -61,8 +78,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _tempFontSize = _fontSize;
     _tempFontFamily = _fontFamily;
+    _tempFontWeight = _fontWeight;
     _tempTextColor = _textColor;
     _tempBackgroundColor = _backgroundColor;
+    _tempSpeed = _speed;
     _controller.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
   }
@@ -181,7 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
         'fontFamily': _fontFamily,
         'textColor': _textColor,
         'backgroundColor': _backgroundColor,
-        'speed': 150.0, // pixels per second
+        'fontWeight': _fontWeight,
+        'speed': _speed,
       },
     );
   }
@@ -190,8 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // Initialize temp values with current settings
     _tempFontSize = _fontSize;
     _tempFontFamily = _fontFamily;
+    _tempFontWeight = _fontWeight;
     _tempTextColor = _textColor;
     _tempBackgroundColor = _backgroundColor;
+    _tempSpeed = _speed;
 
     showDialog(
       context: context,
@@ -263,6 +285,61 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 16),
 
+                  // Font Weight
+                  _buildSettingRow(
+                    icon: Icons.format_bold_rounded,
+                    label: 'Độ đậm',
+                    child: _buildDropdown<FontWeight>(
+                      value: _tempFontWeight,
+                      items: _fontWeightOptions.map((opt) => DropdownMenuItem(
+                        value: opt.weight,
+                        child: Text(opt.label, style: const TextStyle(color: AppColors.textPrimary)),
+                      )).toList(),
+                      onChanged: (value) {
+                        if (value != null) setDialogState(() => _tempFontWeight = value);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Speed
+                  _buildSettingRow(
+                    icon: Icons.speed_rounded,
+                    label: 'Tốc độ',
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: AppColors.primary,
+                              inactiveTrackColor: AppColors.border,
+                              thumbColor: AppColors.primary,
+                              overlayColor: AppColors.primarySoft,
+                              trackHeight: 3,
+                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                            ),
+                            child: Slider(
+                              value: _tempSpeed,
+                              min: 50,
+                              max: 600,
+                              divisions: (600 - 50) ~/ 10,
+                              onChanged: (value) => setDialogState(() => _tempSpeed = value),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 40,
+                          child: Text(
+                            '${_tempSpeed.round()}',
+                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   // Text Color
                   _buildSettingRow(
                     icon: Icons.palette_rounded,
@@ -293,8 +370,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() {
                     _fontSize = _tempFontSize;
                     _fontFamily = _tempFontFamily;
+                    _fontWeight = _tempFontWeight;
                     _textColor = _tempTextColor;
                     _backgroundColor = _tempBackgroundColor;
+                    _speed = _tempSpeed;
                   });
                   Navigator.pop(context);
                 },
@@ -537,9 +616,10 @@ class _HomeScreenState extends State<HomeScreen> {
               text: _previewText,
               fontSize: _fontSize,
               fontFamily: _fontFamily,
+              fontWeight: _fontWeight,
               textColor: _textColor,
               backgroundColor: _backgroundColor,
-              speed: 150.0,
+              speed: _speed,
             ),
             const SizedBox(height: 12),
             // Input section

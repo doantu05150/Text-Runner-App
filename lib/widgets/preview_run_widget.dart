@@ -5,6 +5,7 @@ class PreviewRunWidget extends StatefulWidget {
   final String text;
   final double fontSize;
   final String fontFamily;
+  final FontWeight fontWeight;
   final Color textColor;
   final Color backgroundColor;
   final double speed;
@@ -14,6 +15,7 @@ class PreviewRunWidget extends StatefulWidget {
     required this.text,
     required this.fontSize,
     required this.fontFamily,
+    this.fontWeight = FontWeight.normal,
     required this.textColor,
     required this.backgroundColor,
     this.speed = 150.0,
@@ -50,7 +52,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
     final textPainter = TextPainter(
       text: TextSpan(
         text: widget.text,
-        style: TextStyle(fontSize: scaledFontSize, fontFamily: widget.fontFamily),
+        style: TextStyle(fontSize: scaledFontSize, fontFamily: widget.fontFamily, fontWeight: widget.fontWeight),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -76,6 +78,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
     if (oldWidget.text != widget.text ||
         oldWidget.fontSize != widget.fontSize ||
         oldWidget.fontFamily != widget.fontFamily ||
+        oldWidget.fontWeight != widget.fontWeight ||
         oldWidget.speed != widget.speed) {
       _rebuildAnimation();
     }
@@ -134,6 +137,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
                               style: TextStyle(
                                 fontSize: scaledFontSize,
                                 fontFamily: widget.fontFamily,
+                                fontWeight: widget.fontWeight,
                                 color: widget.textColor,
                               ),
                             ),
