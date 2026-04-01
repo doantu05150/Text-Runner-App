@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/font_utils.dart';
 
 class TextInputWidget extends StatelessWidget {
   final TextEditingController controller;
@@ -49,20 +50,18 @@ class TextInputWidget extends StatelessWidget {
       textAlignVertical: TextAlignVertical.top,
       onChanged: (_) => onChanged?.call(),
       cursorColor: AppColors.primary,
-      style: TextStyle(
+      style: googleFontStyle(fontFamily, baseStyle: TextStyle(
         fontSize: fontSize,
-        fontFamily: fontFamily,
         color: textColor,
         height: 1.2,
-      ),
+      )),
       decoration: InputDecoration(
         hintText: 'Nhập văn bản...',
-        hintStyle: TextStyle(
+        hintStyle: googleFontStyle(fontFamily, baseStyle: TextStyle(
           fontSize: fontSize,
-          fontFamily: fontFamily,
           color: AppColors.textMuted,
           height: 1.2,
-        ),
+        )),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,

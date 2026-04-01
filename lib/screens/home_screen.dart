@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/font_utils.dart';
 import '../widgets/text_input_widget.dart';
 import '../widgets/action_bar_widget.dart';
 import '../widgets/preview_run_widget.dart';
 import '../widgets/app_button.dart';
 import '../models/saved_item.dart';
+import '../models/display_style.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,11 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Settings
   double _fontSize = 72;
-  String _fontFamily = 'Roboto';
-  FontWeight _fontWeight = FontWeight.normal;
-  Color _textColor = Colors.white;
+  String _fontFamily = 'Orbitron';
+  FontWeight _fontWeight = FontWeight.w700;
+  Color _textColor = Colors.pink;
   Color _backgroundColor = AppColors.bgMain;
   double _speed = 150.0;
+  DisplayStyle _displayStyle = DisplayStyle.normal;
 
   static const double _inputFontSize = 18.0;
   static const double _minInputHeight = 56.0;
@@ -47,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Color _tempTextColor;
   late Color _tempBackgroundColor;
   late double _tempSpeed;
+  late DisplayStyle _tempDisplayStyle;
 
   final List<double> _fontSizeOptions = List.generate(
     ((240 - 56) ~/ 4) + 1,
@@ -64,13 +68,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<String> _fontFamilyOptions = [
     'Roboto',
-    'Arial',
-    'Times New Roman',
-    'Courier New',
-    'Georgia',
-    'Verdana',
-    'Helvetica',
-    'Comic Sans MS',
+    'Press Start 2P',
+    'VT323',
+    'Silkscreen',
+    'DotGothic16',
+    'Share Tech Mono',
+    'Orbitron',
+    'Electrolize',
+    'Audiowide',
+    'Russo One',
   ];
 
   @override
@@ -82,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _tempTextColor = _textColor;
     _tempBackgroundColor = _backgroundColor;
     _tempSpeed = _speed;
+    _tempDisplayStyle = _displayStyle;
     _controller.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
   }
@@ -207,6 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'backgroundColor': _backgroundColor,
         'fontWeight': _fontWeight,
         'speed': _speed,
+        'displayStyle': _displayStyle,
       },
     );
   }
@@ -219,6 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _tempTextColor = _textColor;
     _tempBackgroundColor = _backgroundColor;
     _tempSpeed = _speed;
+    _tempDisplayStyle = _displayStyle;
 
     showDialog(
       context: context,
@@ -256,6 +265,29 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Display Style
+                  _buildSettingRow(
+                    icon: Icons.grid_view_rounded,
+                    label: 'Kiểu hiển thị',
+                    child: _buildDropdown<DisplayStyle>(
+                      value: _tempDisplayStyle,
+                      items: const [
+                        DropdownMenuItem(
+                          value: DisplayStyle.normal,
+                          child: Text('Bình thường', style: TextStyle(color: AppColors.textPrimary)),
+                        ),
+                        DropdownMenuItem(
+                          value: DisplayStyle.led,
+                          child: Text('LED', style: TextStyle(color: AppColors.textPrimary)),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) setDialogState(() => _tempDisplayStyle = value);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   // Font Size
                   _buildSettingRow(
                     icon: Icons.format_size_rounded,
@@ -281,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: _tempFontFamily,
                       items: _fontFamilyOptions.map((font) => DropdownMenuItem(
                         value: font,
-                        child: Text(font, style: const TextStyle(color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
+                        child: Text(font, style: googleFontStyle(font, baseStyle: const TextStyle(color: AppColors.textPrimary)), overflow: TextOverflow.ellipsis),
                       )).toList(),
                       onChanged: (value) {
                         if (value != null) setDialogState(() => _tempFontFamily = value);
@@ -379,6 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _textColor = _tempTextColor;
                     _backgroundColor = _tempBackgroundColor;
                     _speed = _tempSpeed;
+                    _displayStyle = _tempDisplayStyle;
                   });
                   Navigator.pop(context);
                 },
@@ -625,6 +658,7 @@ class _HomeScreenState extends State<HomeScreen> {
               textColor: _textColor,
               backgroundColor: _backgroundColor,
               speed: _speed,
+              displayStyle: _displayStyle,
             ),
             const SizedBox(height: 12),
             // Input section

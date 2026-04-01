@@ -1,0 +1,4 @@
+enum DisplayStyle {
+  normal,
+  led,
+}

@@ -1,5 +1,9 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import '../models/display_style.dart';
 import '../theme/app_theme.dart';
+import '../utils/font_utils.dart';
+import 'led_text_painter.dart';
 
 class PreviewRunWidget extends StatefulWidget {
   final String text;
@@ -9,6 +13,7 @@ class PreviewRunWidget extends StatefulWidget {
   final Color textColor;
   final Color backgroundColor;
   final double speed;
+  final DisplayStyle displayStyle;
 
   const PreviewRunWidget({
     super.key,
@@ -19,6 +24,7 @@ class PreviewRunWidget extends StatefulWidget {
     required this.textColor,
     required this.backgroundColor,
     this.speed = 150.0,
+    this.displayStyle = DisplayStyle.normal,
   });
 
   @override
@@ -33,6 +39,11 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
   double _previewWidth = 0;
   double _scale = 1.0;
   double _textWidth = 0;
+
+  // LED pixel data
+  Uint8List? _ledPixels;
+  int _ledImageWidth = 0;
+  int _ledImageHeight = 0;
 
   @override
   void initState() {
@@ -52,7 +63,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
     final textPainter = TextPainter(
       text: TextSpan(
         text: widget.text,
-        style: TextStyle(fontSize: scaledFontSize, fontFamily: widget.fontFamily, fontWeight: widget.fontWeight),
+        style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(fontSize: scaledFontSize, fontWeight: widget.fontWeight)),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -70,6 +81,29 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
     _animation = Tween<double>(begin: -_textWidth, end: _previewWidth)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
     _controller.forward(from: 0);
+
+    if (widget.displayStyle == DisplayStyle.led) {
+      _renderLedPixels(scaledFontSize);
+    } else {
+      _ledPixels = null;
+    }
+  }
+
+  Future<void> _renderLedPixels(double scaledFontSize) async {
+    final result = await renderTextToPixels(
+      text: widget.text,
+      textStyle: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
+        fontSize: scaledFontSize,
+        fontWeight: widget.fontWeight,
+      )),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _ledPixels = result.pixels;
+        _ledImageWidth = result.width;
+        _ledImageHeight = result.height;
+      });
+    }
   }
 
   @override
@@ -79,7 +113,8 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
         oldWidget.fontSize != widget.fontSize ||
         oldWidget.fontFamily != widget.fontFamily ||
         oldWidget.fontWeight != widget.fontWeight ||
-        oldWidget.speed != widget.speed) {
+        oldWidget.speed != widget.speed ||
+        oldWidget.displayStyle != widget.displayStyle) {
       _rebuildAnimation();
     }
   }
@@ -93,7 +128,6 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    // Landscape ratio: width:height = deviceHeight:deviceWidth
     final aspectRatio = deviceSize.height / deviceSize.width;
 
     return LayoutBuilder(
@@ -125,6 +159,23 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
                   animation: _controller,
                   builder: (context, _) {
                     final position = _animation?.value ?? -_textWidth;
+
+                    if (widget.displayStyle == DisplayStyle.led) {
+                      return CustomPaint(
+                        size: Size(newWidth, previewHeight),
+                        painter: LedTextPainter(
+                          pixels: _ledPixels,
+                          imageWidth: _ledImageWidth,
+                          imageHeight: _ledImageHeight,
+                          ledColor: widget.textColor,
+                          backgroundColor: widget.backgroundColor,
+                          offsetX: position,
+                          dotSize: 1.5,
+                          dotSpacing: 1.3,
+                        ),
+                      );
+                    }
+
                     return Stack(
                       children: [
                         Positioned(
@@ -134,12 +185,11 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
                           child: Center(
                             child: Text(
                               widget.text,
-                              style: TextStyle(
+                              style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
                                 fontSize: scaledFontSize,
-                                fontFamily: widget.fontFamily,
                                 fontWeight: widget.fontWeight,
                                 color: widget.textColor,
-                              ),
+                              )),
                             ),
                           ),
                         ),

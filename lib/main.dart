@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'screens/home_screen.dart';
 import 'screens/run_screen.dart';
 import 'screens/saved_screen.dart';
+import 'models/display_style.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
               textColor: args['textColor'] as Color,
               backgroundColor: args['backgroundColor'] as Color,
               speed: args['speed'] as double? ?? 150.0,
+              displayStyle: args['displayStyle'] as DisplayStyle? ?? DisplayStyle.normal,
             ),
           );
         }
