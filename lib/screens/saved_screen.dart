@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_card.dart';
 import '../models/saved_item.dart';
+import '../models/display_style.dart';
 
 class SavedScreen extends StatefulWidget {
   const SavedScreen({super.key});
@@ -145,6 +146,7 @@ class _SavedScreenState extends State<SavedScreen> {
                             'textColor': textColor,
                             'backgroundColor': bgColor,
                             'speed': item.speed,
+                            'displayStyle': DisplayStyle.values.byName(item.displayStyle),
                           },
                         );
                       },
@@ -198,6 +200,8 @@ class _SavedScreenState extends State<SavedScreen> {
                                 _chip('${item.speed.toInt()} px/s'),
                                 const SizedBox(width: 6),
                                 _chip(_fontWeightLabel(item.fontWeightValue)),
+                                const SizedBox(width: 6),
+                                _chip(item.displayStyle == 'led' ? 'LED' : 'Bình thường'),
                               ],
                             ),
                           ),

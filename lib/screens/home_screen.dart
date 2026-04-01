@@ -170,6 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
       textColorValue: _textColor.toARGB32(),
       backgroundColorValue: _backgroundColor.toARGB32(),
       speed: _speed,
+      displayStyle: _displayStyle.name,
       createdAt: DateTime.now(),
     );
 

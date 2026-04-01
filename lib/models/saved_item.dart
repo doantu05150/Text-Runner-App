@@ -7,6 +7,7 @@ class SavedItem {
   final int textColorValue;
   final int backgroundColorValue;
   final double speed;
+  final String displayStyle; // 'normal' or 'led'
   final DateTime createdAt;
 
   SavedItem({
@@ -18,6 +19,7 @@ class SavedItem {
     required this.textColorValue,
     required this.backgroundColorValue,
     this.speed = 150.0,
+    this.displayStyle = 'normal',
     required this.createdAt,
   });
 
@@ -30,6 +32,7 @@ class SavedItem {
     'textColorValue': textColorValue,
     'backgroundColorValue': backgroundColorValue,
     'speed': speed,
+    'displayStyle': displayStyle,
     'createdAt': createdAt.toIso8601String(),
   };
 
@@ -42,6 +45,7 @@ class SavedItem {
     textColorValue: json['textColorValue'],
     backgroundColorValue: json['backgroundColorValue'],
     speed: (json['speed'] as num?)?.toDouble() ?? 150.0,
+    displayStyle: json['displayStyle'] as String? ?? 'normal',
     createdAt: DateTime.parse(json['createdAt']),
   );
 }

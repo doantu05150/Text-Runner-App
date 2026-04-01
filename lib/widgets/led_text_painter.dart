@@ -35,45 +35,66 @@ class LedTextPainter extends CustomPainter {
     final step = dotSize * dotSpacing;
     final cols = (size.width / step).ceil() + 1;
     final rows = (size.height / step).ceil();
-
     final yOffset = (size.height - imageHeight) / 2;
-
-    final offPaint = Paint()..color = ledColor.withValues(alpha: 0.08);
-    final onPaint = Paint()..color = ledColor;
-    final glowPaint = Paint()
-      ..color = ledColor.withValues(alpha: 0.3)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, dotSize * 0.8);
-
-    final dotRadius = dotSize / 2;
     final data = pixels!;
+
+    // Collect points into batches for a single draw call each
+    final onPoints = <Offset>[];
+    final offPoints = <Offset>[];
 
     for (int row = 0; row < rows; row++) {
       final cy = row * step + step / 2;
       final imgY = (cy - yOffset).round();
+      final inYRange = imgY >= 0 && imgY < imageHeight;
+      final rowBase = inYRange ? imgY * imageWidth : -1;
 
       for (int col = 0; col < cols; col++) {
         final cx = col * step + step / 2;
-        final imgX = (cx - offsetX).round();
         final center = Offset(cx, cy);
 
-        if (imgX >= 0 && imgX < imageWidth && imgY >= 0 && imgY < imageHeight) {
-          final pixelIndex = (imgY * imageWidth + imgX) * 4;
-          if (pixelIndex >= 0 && pixelIndex + 2 < data.length) {
-            final r = data[pixelIndex];
-            final g = data[pixelIndex + 1];
-            final b = data[pixelIndex + 2];
-            final brightness = (r + g + b) / 3;
-
-            if (brightness > 80) {
-              canvas.drawCircle(center, dotRadius * 1.6, glowPaint);
-              canvas.drawCircle(center, dotRadius, onPaint);
-              continue;
+        if (inYRange) {
+          final imgX = (cx - offsetX).round();
+          if (imgX >= 0 && imgX < imageWidth) {
+            final pixelIndex = (rowBase + imgX) * 4;
+            if (pixelIndex + 2 < data.length) {
+              final brightness = (data[pixelIndex] + data[pixelIndex + 1] + data[pixelIndex + 2]);
+              if (brightness > 240) { // ~80 * 3
+                onPoints.add(center);
+                continue;
+              }
             }
           }
         }
 
-        canvas.drawCircle(center, dotRadius, offPaint);
+        offPoints.add(center);
       }
+    }
+
+    final dotDiameter = dotSize;
+
+    // Draw off dots — single batch call
+    if (offPoints.isNotEmpty) {
+      final offPaint = Paint()
+        ..color = ledColor.withValues(alpha: 0.08)
+        ..strokeWidth = dotDiameter
+        ..strokeCap = StrokeCap.round;
+      canvas.drawPoints(ui.PointMode.points, offPoints, offPaint);
+    }
+
+    // Draw on dots — glow layer then crisp layer, each a single batch call
+    if (onPoints.isNotEmpty) {
+      final glowPaint = Paint()
+        ..color = ledColor.withValues(alpha: 0.3)
+        ..strokeWidth = dotDiameter * 1.6
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, dotSize * 0.8);
+      canvas.drawPoints(ui.PointMode.points, onPoints, glowPaint);
+
+      final onPaint = Paint()
+        ..color = ledColor
+        ..strokeWidth = dotDiameter
+        ..strokeCap = StrokeCap.round;
+      canvas.drawPoints(ui.PointMode.points, onPoints, onPaint);
     }
   }
 
