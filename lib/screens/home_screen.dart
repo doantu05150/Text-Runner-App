@@ -117,7 +117,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final contentHeight = (lineCount * _inputFontSize * 1.2) + _verticalPadding;
 
     setState(() {
-      _inputHeight = contentHeight.clamp(_minInputHeight, _calculateMaxInputHeight());
+      _inputHeight = contentHeight.clamp(
+        _minInputHeight,
+        _calculateMaxInputHeight().clamp(_minInputHeight, double.infinity),
+      );
     });
   }
 
@@ -156,8 +159,10 @@ class _HomeScreenState extends State<HomeScreen> {
       text: _controller.text,
       fontSize: _fontSize,
       fontFamily: _fontFamily,
+      fontWeightValue: _fontWeight.value,
       textColorValue: _textColor.toARGB32(),
       backgroundColorValue: _backgroundColor.toARGB32(),
+      speed: _speed,
       createdAt: DateTime.now(),
     );
 
