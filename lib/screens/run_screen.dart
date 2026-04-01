@@ -54,7 +54,9 @@ class _RunScreenState extends State<RunScreen>
     final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       setState(() {
-        _screenWidth = renderBox.size.width;
+        // Use height because RotatedBox(quarterTurns: 1) swaps axes —
+        // the text scrolls along the screen's height dimension.
+        _screenWidth = renderBox.size.height;
       });
     }
     
@@ -98,13 +100,7 @@ class _RunScreenState extends State<RunScreen>
       curve: Curves.linear,
     ));
     
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _controller.forward(from: 0);
-      }
-    });
-    
-    _controller.forward();
+    _controller.repeat();
   }
 
   @override
