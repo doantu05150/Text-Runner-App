@@ -48,8 +48,12 @@ class _RunScreenState extends State<RunScreen>
   void initState() {
     super.initState();
 
-    // Hide system navigation bar (immersive mode)
+    // Hide status bar and navigation bar (full immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ));
     // Keep screen awake
     try {
       WakelockPlus.enable();
@@ -142,6 +146,12 @@ class _RunScreenState extends State<RunScreen>
   void dispose() {
     // Restore system UI and allow screen to turn off
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Color(0xFF181A20),
+      systemNavigationBarIconBrightness: Brightness.light,
+    ));
     try {
       WakelockPlus.disable();
     } catch (_) {}
