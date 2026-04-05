@@ -597,6 +597,42 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildQuickTheme({required String label, required Color bgColor, required Color textColor}) {
+    final isSelected = _backgroundColor.toARGB32() == bgColor.toARGB32() &&
+        _textColor.toARGB32() == textColor.toARGB32() &&
+        _displayStyle == DisplayStyle.led;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _backgroundColor = bgColor;
+          _textColor = textColor;
+          _displayStyle = DisplayStyle.led;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.border,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -662,12 +698,48 @@ class _HomeScreenState extends State<HomeScreen> {
               displayStyle: _displayStyle,
             ),
             const SizedBox(height: 12),
+            // Quick Themes
+            LayoutBuilder(builder: (context, constraints) {
+              final itemWidth = (constraints.maxWidth - 12 * 3) / 4;
+              return GridView.count(
+                crossAxisCount: 4,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: itemWidth / 60,
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                physics: const NeverScrollableScrollPhysics(),
+              children: [
+                _buildQuickTheme(
+                  label: 'Textify',
+                  bgColor: Colors.black,
+                  textColor: Colors.pink,
+                ),
+                _buildQuickTheme(
+                  label: 'Glow',
+                  bgColor: Colors.white,
+                  textColor: Colors.pink,
+                ),
+                _buildQuickTheme(
+                  label: 'LED',
+                  bgColor: Colors.red,
+                  textColor: Colors.white,
+                ),
+                _buildQuickTheme(
+                  label: 'App',
+                  bgColor: Colors.greenAccent,
+                  textColor: Colors.black,
+                ),
+              ],
+              );
+            }),
+            const SizedBox(height: 12),
             // Input section
             TextInputWidget(
               controller: _controller,
               fontSize: _inputFontSize,
               fontFamily: _fontFamily,
-              textColor: _textColor,
+              textColor: AppColors.textPrimary,
               inputHeight: _inputHeight,
               verticalPadding: _verticalPadding,
               onChanged: _onTextChanged,
