@@ -1,4 +1,4 @@
-package com.example.text_runner_app
+package com.divadot.textrun
 
 import io.flutter.embedding.android.FlutterActivity
 

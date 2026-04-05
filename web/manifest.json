@@ -1,11 +1,11 @@
 {
-    "name": "text_runner_app",
-    "short_name": "text_runner_app",
+    "name": "GlowTextify LED",
+    "short_name": "GlowTextify",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Turn your phone into a scrolling LED text banner.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController(
-    text: 'Hello, TextRunner!',
+    text: 'Hello, GlowTextify!',
   );
 
   // Settings
@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double _inputHeight = _minInputHeight;
 
   // Preview (debounced)
-  String _previewText = 'Hello, TextRunner!';
+  String _previewText = 'Hello, GlowTextify!';
   Timer? _debounceTimer;
 
   // Temporary settings for dialog
@@ -617,7 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 12),
             Text(
-              'Text Runner',
+              'GlowTextify LED',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),

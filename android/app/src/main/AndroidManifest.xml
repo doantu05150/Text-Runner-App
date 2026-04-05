@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="text_runner_app"
+        android:label="GlowTextify LED"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

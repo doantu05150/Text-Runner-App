@@ -1,5 +1,5 @@
 name: text_runner_app
-description: "A new Flutter project."
+description: "GlowTextify LED - Turn your phone into a scrolling LED text banner. Create eye-catching scrolling messages for events, concerts, parties, shops, and more. Customize fonts, colors, speed, and display styles including LED dot-matrix mode."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
