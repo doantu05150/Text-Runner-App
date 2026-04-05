@@ -24,12 +24,12 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   // Settings
-  double _fontSize = 72;
+  double _fontSize = 80;
   String _fontFamily = 'Orbitron';
   FontWeight _fontWeight = FontWeight.w700;
   Color _textColor = Colors.pink;
   Color _backgroundColor = AppColors.bgMain;
-  double _speed = 150.0;
+  double _speed = 250.0;
   DisplayStyle _displayStyle = DisplayStyle.normal;
 
   static const double _inputFontSize = 18.0;
