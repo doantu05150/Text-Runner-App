@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../models/display_style.dart';
 import '../utils/font_utils.dart';
 import '../widgets/led_text_painter.dart';
@@ -45,6 +47,14 @@ class _RunScreenState extends State<RunScreen>
   @override
   void initState() {
     super.initState();
+
+    // Hide system navigation bar (immersive mode)
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // Keep screen awake
+    try {
+      WakelockPlus.enable();
+    } catch (_) {}
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -130,6 +140,11 @@ class _RunScreenState extends State<RunScreen>
 
   @override
   void dispose() {
+    // Restore system UI and allow screen to turn off
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    try {
+      WakelockPlus.disable();
+    } catch (_) {}
     _controller.dispose();
     super.dispose();
   }
@@ -210,6 +225,8 @@ class _RunScreenState extends State<RunScreen>
 
     return Scaffold(
       backgroundColor: widget.backgroundColor,
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       body: RotatedBox(
         quarterTurns: 1,
         child: GestureDetector(
