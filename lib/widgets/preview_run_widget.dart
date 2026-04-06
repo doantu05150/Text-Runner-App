@@ -14,6 +14,8 @@ class PreviewRunWidget extends StatefulWidget {
   final Color backgroundColor;
   final double speed;
   final DisplayStyle displayStyle;
+  final bool blinkText;
+  final double blinkSpeed;
 
   const PreviewRunWidget({
     super.key,
@@ -25,6 +27,8 @@ class PreviewRunWidget extends StatefulWidget {
     required this.backgroundColor,
     this.speed = 150.0,
     this.displayStyle = DisplayStyle.normal,
+    this.blinkText = false,
+    this.blinkSpeed = 500.0,
   });
 
   @override
@@ -32,9 +36,10 @@ class PreviewRunWidget extends StatefulWidget {
 }
 
 class _PreviewRunWidgetState extends State<PreviewRunWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   Animation<double>? _animation;
+  AnimationController? _blinkController;
 
   double _previewWidth = 0;
   double _scale = 1.0;
@@ -54,6 +59,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
         _controller.forward(from: 0);
       }
     });
+    _updateBlinkController();
   }
 
   void _rebuildAnimation() {
@@ -106,9 +112,29 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
     }
   }
 
+  void _updateBlinkController() {
+    if (widget.blinkText) {
+      final duration = Duration(milliseconds: widget.blinkSpeed.round());
+      if (_blinkController == null) {
+        _blinkController = AnimationController(
+          vsync: this,
+          duration: duration,
+        )..repeat(reverse: true);
+      } else {
+        _blinkController!.duration = duration;
+      }
+    } else if (_blinkController != null) {
+      _blinkController!.dispose();
+      _blinkController = null;
+    }
+  }
+
   @override
   void didUpdateWidget(PreviewRunWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.blinkText != widget.blinkText || oldWidget.blinkSpeed != widget.blinkSpeed) {
+      _updateBlinkController();
+    }
     if (oldWidget.text != widget.text ||
         oldWidget.fontSize != widget.fontSize ||
         oldWidget.fontFamily != widget.fontFamily ||
@@ -121,6 +147,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
 
   @override
   void dispose() {
+    _blinkController?.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -155,7 +182,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
           clipBehavior: Clip.hardEdge,
           child: widget.text.isEmpty
               ? const SizedBox()
-              : AnimatedBuilder(
+              : _wrapWithBlink(AnimatedBuilder(
                   animation: _controller,
                   builder: (context, _) {
                     final position = _animation?.value ?? -_textWidth;
@@ -196,9 +223,16 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
                       ],
                     );
                   },
-                ),
+                )),
         );
       },
     );
+  }
+
+  Widget _wrapWithBlink(Widget child) {
+    if (_blinkController != null) {
+      return FadeTransition(opacity: _blinkController!, child: child);
+    }
+    return child;
   }
 }

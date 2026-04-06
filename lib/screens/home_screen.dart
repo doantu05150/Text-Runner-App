@@ -31,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Color _backgroundColor = AppColors.bgMain;
   double _speed = 250.0;
   DisplayStyle _displayStyle = DisplayStyle.normal;
+  bool _blinkText = false;
+  double _blinkSpeed = 500.0; // milliseconds
 
   static const double _inputFontSize = 18.0;
   static const double _minInputHeight = 56.0;
@@ -51,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late Color _tempBackgroundColor;
   late double _tempSpeed;
   late DisplayStyle _tempDisplayStyle;
+  late bool _tempBlinkText;
+  late double _tempBlinkSpeed;
 
   final List<double> _fontSizeOptions = List.generate(
     ((240 - 56) ~/ 4) + 1,
@@ -89,6 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _tempBackgroundColor = _backgroundColor;
     _tempSpeed = _speed;
     _tempDisplayStyle = _displayStyle;
+    _tempBlinkText = _blinkText;
+    _tempBlinkSpeed = _blinkSpeed;
     _controller.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
   }
@@ -171,6 +177,8 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColorValue: _backgroundColor.toARGB32(),
       speed: _speed,
       displayStyle: _displayStyle.name,
+      blinkText: _blinkText,
+      blinkSpeed: _blinkSpeed,
       createdAt: DateTime.now(),
     );
 
@@ -216,6 +224,8 @@ class _HomeScreenState extends State<HomeScreen> {
         'fontWeight': _fontWeight,
         'speed': _speed,
         'displayStyle': _displayStyle,
+        'blinkText': _blinkText,
+        'blinkSpeed': _blinkSpeed,
       },
     );
   }
@@ -229,6 +239,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _tempBackgroundColor = _backgroundColor;
     _tempSpeed = _speed;
     _tempDisplayStyle = _displayStyle;
+    _tempBlinkText = _blinkText;
+    _tempBlinkSpeed = _blinkSpeed;
 
     showDialog(
       context: context,
@@ -236,6 +248,8 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, setDialogState) {
           return AlertDialog(
             backgroundColor: AppColors.bgCard,
+            contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: const BorderSide(color: AppColors.border),
@@ -287,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Font Size
                   _buildSettingRow(
@@ -304,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Font Family
                   _buildSettingRow(
@@ -321,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Font Weight
                   _buildSettingRow(
@@ -338,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Speed
                   _buildSettingRow(
@@ -376,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Text Color
                   _buildSettingRow(
@@ -384,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: 'Màu chữ',
                     child: _buildColorSwatch(_tempTextColor, () => _showColorPickerInDialog(setDialogState, true)),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Background Color
                   _buildSettingRow(
@@ -392,10 +406,59 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: 'Màu nền',
                     child: _buildColorSwatch(_tempBackgroundColor, () => _showColorPickerInDialog(setDialogState, false)),
                   ),
+                  const SizedBox(height: 8),
+
+                  // Blink Text
+                  Row(
+                    children: [
+                      const Icon(Icons.flare_rounded, size: 20, color: AppColors.textSecondary),
+                      const SizedBox(width: 12),
+                      const Text('Nhấp nháy', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                      SizedBox(
+                        height: 32,
+                        child: FittedBox(
+                          child: Switch(
+                            value: _tempBlinkText,
+                            activeThumbColor: AppColors.primary,
+                            onChanged: (value) => setDialogState(() => _tempBlinkText = value),
+                          ),
+                        ),
+                      ),
+                      if (_tempBlinkText) ...[
+                        Expanded(
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: AppColors.primary,
+                              inactiveTrackColor: AppColors.border,
+                              thumbColor: AppColors.primary,
+                              overlayColor: AppColors.primarySoft,
+                              trackHeight: 3,
+                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                            ),
+                            child: Slider(
+                              value: _tempBlinkSpeed,
+                              min: 100,
+                              max: 1000,
+                              divisions: 18,
+                              onChanged: (value) => setDialogState(() => _tempBlinkSpeed = value),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 40,
+                          child: Text(
+                            '${_tempBlinkSpeed.round()}',
+                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
-            actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             actions: [
               AppButton(
                 isPrimary: false,
@@ -413,6 +476,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     _backgroundColor = _tempBackgroundColor;
                     _speed = _tempSpeed;
                     _displayStyle = _tempDisplayStyle;
+                    _blinkText = _tempBlinkText;
+                    _blinkSpeed = _tempBlinkSpeed;
                   });
                   Navigator.pop(context);
                 },
@@ -696,6 +761,8 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: _backgroundColor,
               speed: _speed,
               displayStyle: _displayStyle,
+              blinkText: _blinkText,
+              blinkSpeed: _blinkSpeed,
             ),
             const SizedBox(height: 12),
             // Quick Themes
@@ -723,7 +790,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildQuickTheme(
                   label: 'LED',
                   bgColor: Colors.red,
-                  textColor: Colors.white,
+                  textColor: Colors.black,
                 ),
                 _buildQuickTheme(
                   label: 'App',

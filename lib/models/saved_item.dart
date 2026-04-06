@@ -8,6 +8,8 @@ class SavedItem {
   final int backgroundColorValue;
   final double speed;
   final String displayStyle; // 'normal' or 'led'
+  final bool blinkText;
+  final double blinkSpeed;
   final DateTime createdAt;
 
   SavedItem({
@@ -20,6 +22,8 @@ class SavedItem {
     required this.backgroundColorValue,
     this.speed = 150.0,
     this.displayStyle = 'normal',
+    this.blinkText = false,
+    this.blinkSpeed = 500.0,
     required this.createdAt,
   });
 
@@ -33,6 +37,8 @@ class SavedItem {
     'backgroundColorValue': backgroundColorValue,
     'speed': speed,
     'displayStyle': displayStyle,
+    'blinkText': blinkText,
+    'blinkSpeed': blinkSpeed,
     'createdAt': createdAt.toIso8601String(),
   };
 
@@ -46,6 +52,8 @@ class SavedItem {
     backgroundColorValue: json['backgroundColorValue'],
     speed: (json['speed'] as num?)?.toDouble() ?? 150.0,
     displayStyle: json['displayStyle'] as String? ?? 'normal',
+    blinkText: json['blinkText'] as bool? ?? false,
+    blinkSpeed: (json['blinkSpeed'] as num?)?.toDouble() ?? 500.0,
     createdAt: DateTime.parse(json['createdAt']),
   );
 }

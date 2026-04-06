@@ -48,6 +48,8 @@ class MyApp extends StatelessWidget {
               backgroundColor: args['backgroundColor'] as Color,
               speed: args['speed'] as double? ?? 150.0,
               displayStyle: args['displayStyle'] as DisplayStyle? ?? DisplayStyle.normal,
+              blinkText: args['blinkText'] as bool? ?? false,
+              blinkSpeed: args['blinkSpeed'] as double? ?? 500.0,
             ),
           );
         }

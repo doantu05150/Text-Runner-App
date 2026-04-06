@@ -15,6 +15,8 @@ class RunScreen extends StatefulWidget {
   final Color backgroundColor;
   final double speed;
   final DisplayStyle displayStyle;
+  final bool blinkText;
+  final double blinkSpeed;
 
   const RunScreen({
     super.key,
@@ -26,6 +28,8 @@ class RunScreen extends StatefulWidget {
     required this.backgroundColor,
     this.speed = 50.0,
     this.displayStyle = DisplayStyle.normal,
+    this.blinkText = false,
+    this.blinkSpeed = 500.0,
   });
 
   @override
@@ -33,11 +37,14 @@ class RunScreen extends StatefulWidget {
 }
 
 class _RunScreenState extends State<RunScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   double _textWidth = 0;
   double _screenWidth = 0;
+
+  // Blink
+  AnimationController? _blinkController;
 
   // LED pixel data
   Uint8List? _ledPixels;
@@ -65,6 +72,13 @@ class _RunScreenState extends State<RunScreen>
     );
 
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+    if (widget.blinkText) {
+      _blinkController = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: widget.blinkSpeed.round()),
+      )..repeat(reverse: true);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateDimensions();
@@ -155,6 +169,7 @@ class _RunScreenState extends State<RunScreen>
     try {
       WakelockPlus.disable();
     } catch (_) {}
+    _blinkController?.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -229,9 +244,16 @@ class _RunScreenState extends State<RunScreen>
 
   @override
   Widget build(BuildContext context) {
-    final content = widget.displayStyle == DisplayStyle.led
+    Widget content = widget.displayStyle == DisplayStyle.led
         ? _buildLedText()
         : _buildNormalText();
+
+    if (_blinkController != null) {
+      content = FadeTransition(
+        opacity: _blinkController!,
+        child: content,
+      );
+    }
 
     return Scaffold(
       backgroundColor: widget.backgroundColor,
