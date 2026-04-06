@@ -10,6 +10,7 @@ import '../models/display_style.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../ads/global_inter_ad.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -83,9 +84,20 @@ class _HomeScreenState extends State<HomeScreen> {
     'Russo One',
   ];
 
+  static const String _savedInterAdUnitId =
+      'ca-app-pub-3940256099942544/1033173712';
+
+  void _preloadSavedInterAd() {
+    GlobalInterAd.loadAd(
+      adUnitId: _savedInterAdUnitId,
+      adPlacement: 'home_to_saved',
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    _preloadSavedInterAd();
     _tempFontSize = _fontSize;
     _tempFontFamily = _fontFamily;
     _tempFontWeight = _fontWeight;
@@ -728,7 +740,21 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           AppIconButton(
             icon: Icons.bookmark_rounded,
-            onPressed: () => Navigator.pushNamed(context, '/saved'),
+            onPressed: () {
+              void goToSaved(String? _) {
+                if (!mounted) return;
+                Navigator.pushNamed(context, '/saved');
+                _preloadSavedInterAd();
+              }
+
+              if (GlobalInterAd.isReady) {
+                GlobalInterAd.showAd(onDismissed: goToSaved);
+              } else {
+                // Not cached yet — just navigate and let the next visit
+                // benefit from the preload that's already in flight.
+                goToSaved(null);
+              }
+            },
             tooltip: 'Đã lưu',
           ),
           const SizedBox(width: 20),

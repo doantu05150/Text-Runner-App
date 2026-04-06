@@ -43,6 +43,7 @@ class GlobalInterAd {
   static AdEventCallback? _onClicked;
   static AdPaidCallback? _onPaid;
   static AdEventCallback? _onShow;
+  static AdEventCallback? _onDismissed;
   static String? _adPlacement;
   static bool _showImmediately = false;
 
@@ -66,6 +67,7 @@ class GlobalInterAd {
     AdEventCallback? onClicked,
     AdPaidCallback? onPaid,
     AdEventCallback? onShow,
+    AdEventCallback? onDismissed,
     String? adPlacement,
     int loadTimeout = defaultLoadTimeoutMs,
   }) {
@@ -78,7 +80,7 @@ class GlobalInterAd {
       debugPrint('[GlobalInterAd] Ad already cached.');
       onLoaded?.call(adPlacement);
       if (immediately) {
-        showAd(onShow: onShow);
+        showAd(onShow: onShow, onDismissed: onDismissed);
       }
       return;
     }
@@ -91,6 +93,7 @@ class GlobalInterAd {
     _onClicked = onClicked;
     _onPaid = onPaid;
     _onShow = onShow;
+    _onDismissed = onDismissed;
     _adPlacement = adPlacement;
     _showImmediately = immediately;
 
@@ -145,7 +148,7 @@ class GlobalInterAd {
           _onLoaded?.call(_adPlacement);
 
           if (_showImmediately) {
-            showAd(onShow: _onShow);
+            showAd(onShow: _onShow, onDismissed: _onDismissed);
           }
         },
         onAdFailedToLoad: (LoadAdError error) {
@@ -169,18 +172,25 @@ class GlobalInterAd {
   /// Shows the currently loaded interstitial ad, if any.
   ///
   /// [onShow] overrides the callback passed to [loadAd] for this invocation.
-  static void showAd({AdEventCallback? onShow}) {
+  /// [onDismissed] overrides the dismissal callback and fires after the ad is
+  /// closed (or immediately if no ad is cached).
+  static void showAd({
+    AdEventCallback? onShow,
+    AdEventCallback? onDismissed,
+  }) {
     final ad = _ad;
     if (ad == null) {
       debugPrint('[GlobalInterAd] showAd called but no ad is ready.');
+      (onDismissed ?? _onDismissed)?.call(_adPlacement);
       return;
     }
 
     // Consume the cached ad — interstitials are one-shot.
     _ad = null;
 
-    final cb = onShow ?? _onShow;
-    cb?.call(_adPlacement);
+    if (onDismissed != null) _onDismissed = onDismissed;
+
+    (onShow ?? _onShow)?.call(_adPlacement);
 
     ad.show();
   }
@@ -193,11 +203,13 @@ class GlobalInterAd {
       onAdFailedToShowFullScreenContent: (ad, err) {
         debugPrint('[GlobalInterAd] Failed to show full screen: $err');
         ad.dispose();
+        _onDismissed?.call(_adPlacement);
         _clearCycle();
       },
       onAdDismissedFullScreenContent: (ad) {
         debugPrint('[GlobalInterAd] Ad dismissed.');
         ad.dispose();
+        _onDismissed?.call(_adPlacement);
         _clearCycle();
       },
       onAdImpression: (ad) {
@@ -216,6 +228,7 @@ class GlobalInterAd {
     _onClicked = null;
     _onPaid = null;
     _onShow = null;
+    _onDismissed = null;
     _adPlacement = null;
     _showImmediately = false;
     _loadTimedOut = false;
