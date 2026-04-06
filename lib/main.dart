@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/home_screen.dart';
 import 'screens/run_screen.dart';
 import 'screens/saved_screen.dart';
 import 'models/display_style.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  unawaited(MobileAds.instance.initialize());
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
