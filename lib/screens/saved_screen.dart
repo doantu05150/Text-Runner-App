@@ -75,10 +75,9 @@ class _SavedScreenState extends State<SavedScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgMain,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textSecondary),
+          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textSecondary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -89,7 +88,7 @@ class _SavedScreenState extends State<SavedScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _savedItems.isEmpty
               ? Center(
                   child: Column(
@@ -101,7 +100,7 @@ class _SavedScreenState extends State<SavedScreen> {
                           color: AppColors.primarySoft,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.bookmark_border_rounded,
                           size: 40,
                           color: AppColors.primary,
@@ -115,7 +114,7 @@ class _SavedScreenState extends State<SavedScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Các văn bản đã lưu sẽ xuất hiện ở đây',
                         style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                       ),
@@ -160,7 +159,7 @@ class _SavedScreenState extends State<SavedScreen> {
                               Expanded(
                                 child: Text(
                                   item.text,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.textPrimary,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -209,7 +208,7 @@ class _SavedScreenState extends State<SavedScreen> {
                           // Date
                           Text(
                             _formatDate(item.createdAt),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 12,
                             ),
@@ -232,7 +231,7 @@ class _SavedScreenState extends State<SavedScreen> {
       ),
       child: Text(
         label,
-        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
       ),
     );
   }
@@ -260,10 +259,11 @@ class _SavedScreenState extends State<SavedScreen> {
           const SizedBox(width: 5),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
           ),
         ],
       ),
     );
   }
 }
+

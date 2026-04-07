@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import '../theme/app_theme.dart';
 import 'global_native_ad.dart';
 
 /// Native ad shown below the Play button on the home screen.
@@ -44,7 +43,7 @@ class HomeBottomNativeAd extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: AppColors.bgCard,
+      color: const Color(0xFF121821),
       padding: const EdgeInsets.all(12),
       child: LayoutBuilder(
         builder: (context, constraints) {

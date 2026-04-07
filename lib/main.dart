@@ -6,11 +6,14 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/home_screen.dart';
 import 'screens/run_screen.dart';
 import 'screens/saved_screen.dart';
+import 'screens/settings_screen.dart';
 import 'models/display_style.dart';
+import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ThemeController.instance.load();
   unawaited(MobileAds.instance.initialize());
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -30,9 +33,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeController.instance.themeMode,
+      builder: (context, mode, _) => MaterialApp(
       title: 'GlowTextify LED',
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.current,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       onGenerateRoute: (settings) {
@@ -40,6 +45,8 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(builder: (context) => const HomeScreen());
         } else if (settings.name == '/saved') {
           return MaterialPageRoute(builder: (context) => const SavedScreen());
+        } else if (settings.name == '/settings') {
+          return MaterialPageRoute(builder: (context) => const SettingsScreen());
         } else if (settings.name == '/run') {
           final args = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
@@ -59,6 +66,7 @@ class MyApp extends StatelessWidget {
         }
         return null;
       },
+      ),
     );
   }
 }

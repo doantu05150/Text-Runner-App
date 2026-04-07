@@ -265,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
             titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
             ),
             title: Row(
               children: [
@@ -275,10 +275,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: AppColors.primarySoft,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
+                  child: Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Cài đặt',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -299,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: 'Kiểu hiển thị',
                     child: _buildDropdown<DisplayStyle>(
                       value: _tempDisplayStyle,
-                      items: const [
+                      items: [
                         DropdownMenuItem(
                           value: DisplayStyle.normal,
                           child: Text('Bình thường', style: TextStyle(color: AppColors.textPrimary)),
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: _tempFontSize,
                       items: _fontSizeOptions.map((size) => DropdownMenuItem(
                         value: size,
-                        child: Text('${size.toInt()}px', style: const TextStyle(color: AppColors.textPrimary)),
+                        child: Text('${size.toInt()}px', style: TextStyle(color: AppColors.textPrimary)),
                       )).toList(),
                       onChanged: (value) {
                         if (value != null) setDialogState(() => _tempFontSize = value);
@@ -341,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: _tempFontFamily,
                       items: _fontFamilyOptions.map((font) => DropdownMenuItem(
                         value: font,
-                        child: Text(font, style: googleFontStyle(font, baseStyle: const TextStyle(color: AppColors.textPrimary)), overflow: TextOverflow.ellipsis),
+                        child: Text(font, style: googleFontStyle(font, baseStyle: TextStyle(color: AppColors.textPrimary)), overflow: TextOverflow.ellipsis),
                       )).toList(),
                       onChanged: (value) {
                         if (value != null) setDialogState(() => _tempFontFamily = value);
@@ -358,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: _tempFontWeight,
                       items: _fontWeightOptions.map((opt) => DropdownMenuItem(
                         value: opt.weight,
-                        child: Text(opt.label, style: const TextStyle(color: AppColors.textPrimary)),
+                        child: Text(opt.label, style: TextStyle(color: AppColors.textPrimary)),
                       )).toList(),
                       onChanged: (value) {
                         if (value != null) setDialogState(() => _tempFontWeight = value);
@@ -396,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 40,
                           child: Text(
                             '${_tempSpeed.round()}',
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                             textAlign: TextAlign.right,
                           ),
                         ),
@@ -424,9 +424,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Blink Text
                   Row(
                     children: [
-                      const Icon(Icons.flare_rounded, size: 20, color: AppColors.textSecondary),
+                      Icon(Icons.flare_rounded, size: 20, color: AppColors.textSecondary),
                       const SizedBox(width: 12),
-                      const Text('Nhấp nháy', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                      Text('Nhấp nháy', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
                       SizedBox(
                         height: 32,
                         child: FittedBox(
@@ -461,7 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 40,
                           child: Text(
                             '${_tempBlinkSpeed.round()}',
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                             textAlign: TextAlign.right,
                           ),
                         ),
@@ -510,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(width: 12),
         SizedBox(
           width: 80,
-          child: Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+          child: Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
         ),
         Expanded(child: child),
       ],
@@ -532,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> {
           dropdownColor: AppColors.bgCard,
           items: items,
           onChanged: onChanged,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
         ),
       ),
     );
@@ -563,10 +563,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 12),
             Text(
               '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'monospace'),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'monospace'),
             ),
             const Spacer(),
-            const Icon(Icons.colorize_rounded, size: 18, color: AppColors.textMuted),
+            Icon(Icons.colorize_rounded, size: 18, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -606,11 +606,11 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppColors.bgCard,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: AppColors.border),
         ),
         title: Text(
           isTextColor ? 'Chọn màu chữ' : 'Chọn màu nền',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -716,7 +716,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgMain,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
         titleSpacing: 20,
         title: Row(
@@ -727,7 +726,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppColors.primarySoft,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.text_fields_rounded, color: AppColors.primary, size: 20),
+              child: Icon(Icons.text_fields_rounded, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 12),
             Text(
@@ -757,6 +756,12 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
             tooltip: 'Đã lưu',
+          ),
+          const SizedBox(width: 8),
+          AppIconButton(
+            icon: Icons.settings_rounded,
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+            tooltip: 'Cài đặt',
           ),
           const SizedBox(width: 20),
         ],
