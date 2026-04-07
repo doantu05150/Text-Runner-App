@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ads/global_inter_ad.dart';
+import '../ads/home_bottom_native_ad.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -760,11 +761,17 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 20),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: LayoutBuilder(builder: (context, constraints) {
+        final bottomInset = MediaQuery.of(context).padding.bottom;
+        final adHeight = HomeBottomNativeAd.heightForWidth(constraints.maxWidth);
+        return Stack(
           children: [
+            Positioned.fill(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(20, 8, 20, adHeight + bottomInset),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
             // Action Bar
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -849,9 +856,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                top: false,
+                left: false,
+                right: false,
+                child: const HomeBottomNativeAd(),
+              ),
+            ),
           ],
-        ),
-      ),
+        );
+      }),
     );
   }
 

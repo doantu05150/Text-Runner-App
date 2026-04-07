@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-typedef AdEventCallback = void Function(String? adPlacement);
+typedef AdPlacementCallback = void Function(String? adPlacement);
 typedef AdLoadFailedCallback = void Function(
   String? adPlacement,
   LoadAdError error,
@@ -37,13 +37,13 @@ class GlobalInterAd {
   static bool _loadTimedOut = false;
 
   // Callbacks / context for the current load cycle.
-  static AdEventCallback? _onLoaded;
+  static AdPlacementCallback? _onLoaded;
   static AdLoadFailedCallback? _onLoadFailed;
-  static AdEventCallback? _onImpression;
-  static AdEventCallback? _onClicked;
+  static AdPlacementCallback? _onImpression;
+  static AdPlacementCallback? _onClicked;
   static AdPaidCallback? _onPaid;
-  static AdEventCallback? _onShow;
-  static AdEventCallback? _onDismissed;
+  static AdPlacementCallback? _onShow;
+  static AdPlacementCallback? _onDismissed;
   static String? _adPlacement;
   static bool _showImmediately = false;
 
@@ -61,13 +61,13 @@ class GlobalInterAd {
   static void loadAd({
     required String adUnitId,
     bool immediately = false,
-    AdEventCallback? onLoaded,
+    AdPlacementCallback? onLoaded,
     AdLoadFailedCallback? onLoadFailed,
-    AdEventCallback? onImpression,
-    AdEventCallback? onClicked,
+    AdPlacementCallback? onImpression,
+    AdPlacementCallback? onClicked,
     AdPaidCallback? onPaid,
-    AdEventCallback? onShow,
-    AdEventCallback? onDismissed,
+    AdPlacementCallback? onShow,
+    AdPlacementCallback? onDismissed,
     String? adPlacement,
     int loadTimeout = defaultLoadTimeoutMs,
   }) {
@@ -175,8 +175,8 @@ class GlobalInterAd {
   /// [onDismissed] overrides the dismissal callback and fires after the ad is
   /// closed (or immediately if no ad is cached).
   static void showAd({
-    AdEventCallback? onShow,
-    AdEventCallback? onDismissed,
+    AdPlacementCallback? onShow,
+    AdPlacementCallback? onDismissed,
   }) {
     final ad = _ad;
     if (ad == null) {
