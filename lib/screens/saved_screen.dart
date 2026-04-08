@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_strings.dart';
+import '../services/locale_controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_card.dart';
 import '../models/saved_item.dart';
@@ -72,7 +74,11 @@ class _SavedScreenState extends State<SavedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ValueListenableBuilder<String>(
+      valueListenable: LocaleController.instance.code,
+      builder: (context, _, __) {
+        final AppStrings t = LocaleController.instance.strings;
+        return Scaffold(
       backgroundColor: AppColors.bgMain,
       appBar: AppBar(
         elevation: 0,
@@ -81,7 +87,7 @@ class _SavedScreenState extends State<SavedScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Đã lưu',
+          t.saved,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -108,14 +114,14 @@ class _SavedScreenState extends State<SavedScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Chưa có mục nào',
+                        t.noItemsYet,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Các văn bản đã lưu sẽ xuất hiện ở đây',
+                        t.savedTextsWillAppear,
                         style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                       ),
                     ],
@@ -192,15 +198,15 @@ class _SavedScreenState extends State<SavedScreen> {
                                 const SizedBox(width: 6),
                                 _chip(item.fontFamily),
                                 const SizedBox(width: 6),
-                                _colorChip(textColor, 'Chữ'),
+                                _colorChip(textColor, t.textLabel),
                                 const SizedBox(width: 6),
-                                _colorChip(bgColor, 'Nền'),
+                                _colorChip(bgColor, t.bgLabel),
                                 const SizedBox(width: 6),
                                 _chip('${item.speed.toInt()} px/s'),
                                 const SizedBox(width: 6),
                                 _chip(_fontWeightLabel(item.fontWeightValue)),
                                 const SizedBox(width: 6),
-                                _chip(item.displayStyle == 'led' ? 'LED' : 'Bình thường'),
+                                _chip(item.displayStyle == 'led' ? 'LED' : t.normal),
                               ],
                             ),
                           ),
@@ -218,6 +224,8 @@ class _SavedScreenState extends State<SavedScreen> {
                     );
                   },
                 ),
+    );
+      },
     );
   }
 

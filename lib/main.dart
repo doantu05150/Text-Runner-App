@@ -8,12 +8,14 @@ import 'screens/run_screen.dart';
 import 'screens/saved_screen.dart';
 import 'screens/settings_screen.dart';
 import 'models/display_style.dart';
+import 'services/locale_controller.dart';
 import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeController.instance.load();
+  await LocaleController.instance.load();
   unawaited(MobileAds.instance.initialize());
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -35,7 +37,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: ThemeController.instance.themeMode,
-      builder: (context, mode, _) => MaterialApp(
+      builder: (context, mode, _) => ValueListenableBuilder<String>(
+        valueListenable: LocaleController.instance.code,
+        builder: (context, langCode, __) => MaterialApp(
       title: 'GlowTextify LED',
       theme: AppTheme.current,
       debugShowCheckedModeBanner: false,
@@ -66,6 +70,7 @@ class MyApp extends StatelessWidget {
         }
         return null;
       },
+        ),
       ),
     );
   }

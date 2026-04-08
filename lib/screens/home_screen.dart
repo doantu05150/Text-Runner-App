@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/locale_controller.dart';
 import '../theme/app_theme.dart';
 import '../utils/font_utils.dart';
 import '../widgets/text_input_widget.dart';
@@ -167,10 +168,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _saveText() async {
+    final t = LocaleController.instance.strings;
     if (_controller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Vui lòng nhập văn bản trước khi lưu'),
+          content: Text(t.enterTextToSave),
           backgroundColor: AppColors.bgCard,
         ),
       );
@@ -205,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
-              const Text('Đã lưu văn bản thành công'),
+              Text(t.savedSuccess),
             ],
           ),
           backgroundColor: AppColors.bgCard,
@@ -216,9 +218,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _startTextRunner() {
     if (_controller.text.isEmpty) {
+      final t = LocaleController.instance.strings;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Vui lòng nhập văn bản trước khi chạy'),
+          content: Text(t.enterTextToRun),
           backgroundColor: AppColors.bgCard,
         ),
       );
@@ -255,6 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _tempBlinkText = _blinkText;
     _tempBlinkSpeed = _blinkSpeed;
 
+    final t = LocaleController.instance.strings;
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -279,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Cài đặt',
+                  t.settings,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 20,
@@ -296,13 +300,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Display Style
                   _buildSettingRow(
                     icon: Icons.grid_view_rounded,
-                    label: 'Kiểu hiển thị',
+                    label: t.displayStyle,
                     child: _buildDropdown<DisplayStyle>(
                       value: _tempDisplayStyle,
                       items: [
                         DropdownMenuItem(
                           value: DisplayStyle.normal,
-                          child: Text('Bình thường', style: TextStyle(color: AppColors.textPrimary)),
+                          child: Text(t.normal, style: TextStyle(color: AppColors.textPrimary)),
                         ),
                         DropdownMenuItem(
                           value: DisplayStyle.led,
@@ -319,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Font Size
                   _buildSettingRow(
                     icon: Icons.format_size_rounded,
-                    label: 'Cỡ chữ',
+                    label: t.fontSize,
                     child: _buildDropdown<double>(
                       value: _tempFontSize,
                       items: _fontSizeOptions.map((size) => DropdownMenuItem(
@@ -336,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Font Family
                   _buildSettingRow(
                     icon: Icons.font_download_rounded,
-                    label: 'Font chữ',
+                    label: t.fontFamily,
                     child: _buildDropdown<String>(
                       value: _tempFontFamily,
                       items: _fontFamilyOptions.map((font) => DropdownMenuItem(
@@ -353,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Font Weight
                   _buildSettingRow(
                     icon: Icons.format_bold_rounded,
-                    label: 'Độ đậm',
+                    label: t.fontWeight,
                     child: _buildDropdown<FontWeight>(
                       value: _tempFontWeight,
                       items: _fontWeightOptions.map((opt) => DropdownMenuItem(
@@ -370,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Speed
                   _buildSettingRow(
                     icon: Icons.speed_rounded,
-                    label: 'Tốc độ',
+                    label: t.speed,
                     child: Row(
                       children: [
                         Expanded(
@@ -408,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Text Color
                   _buildSettingRow(
                     icon: Icons.palette_rounded,
-                    label: 'Màu chữ',
+                    label: t.textColor,
                     child: _buildColorSwatch(_tempTextColor, () => _showColorPickerInDialog(setDialogState, true)),
                   ),
                   const SizedBox(height: 8),
@@ -416,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Background Color
                   _buildSettingRow(
                     icon: Icons.format_color_fill_rounded,
-                    label: 'Màu nền',
+                    label: t.backgroundColor,
                     child: _buildColorSwatch(_tempBackgroundColor, () => _showColorPickerInDialog(setDialogState, false)),
                   ),
                   const SizedBox(height: 8),
@@ -426,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Icon(Icons.flare_rounded, size: 20, color: AppColors.textSecondary),
                       const SizedBox(width: 12),
-                      Text('Nhấp nháy', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                      Text(t.blink, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
                       SizedBox(
                         height: 32,
                         child: FittedBox(
@@ -476,7 +480,7 @@ class _HomeScreenState extends State<HomeScreen> {
               AppButton(
                 isPrimary: false,
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                child: Text(t.cancel),
               ),
               const SizedBox(width: 8),
               AppButton(
@@ -494,7 +498,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                   Navigator.pop(context);
                 },
-                child: const Text('Lưu'),
+                child: Text(t.save),
               ),
             ],
           );
@@ -599,6 +603,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     final currentColor = isTextColor ? _tempTextColor : _tempBackgroundColor;
+    final t = LocaleController.instance.strings;
 
     showDialog(
       context: context,
@@ -609,7 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
           side: BorderSide(color: AppColors.border),
         ),
         title: Text(
-          isTextColor ? 'Chọn màu chữ' : 'Chọn màu nền',
+          isTextColor ? t.selectTextColor : t.selectBackgroundColor,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
@@ -668,7 +673,7 @@ class _HomeScreenState extends State<HomeScreen> {
           AppButton(
             isPrimary: false,
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: Text(t.cancel),
           ),
         ],
       ),
@@ -713,7 +718,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ValueListenableBuilder<String>(
+      valueListenable: LocaleController.instance.code,
+      builder: (context, _, __) {
+        final t = LocaleController.instance.strings;
+        return Scaffold(
       backgroundColor: AppColors.bgMain,
       appBar: AppBar(
         elevation: 0,
@@ -755,13 +764,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 goToSaved(null);
               }
             },
-            tooltip: 'Đã lưu',
+            tooltip: t.saved,
           ),
           const SizedBox(width: 8),
           AppIconButton(
             icon: Icons.settings_rounded,
             onPressed: () => Navigator.pushNamed(context, '/settings'),
-            tooltip: 'Cài đặt',
+            tooltip: t.settings,
           ),
           const SizedBox(width: 20),
         ],
@@ -856,9 +865,9 @@ class _HomeScreenState extends State<HomeScreen> {
             AppButton(
               onPressed: _startTextRunner,
               icon: Icons.play_arrow_rounded,
-              child: const Text(
-                'Chạy chữ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              child: Text(
+                t.run,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
                   ],
@@ -879,6 +888,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         );
       }),
+    );
+      },
     );
   }
 
