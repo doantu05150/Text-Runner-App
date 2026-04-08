@@ -75,6 +75,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _preloadSavedInterAd();
+    // Warm the native ad cache so the home bottom ad — and the same
+    // placement reused on the settings screen — render with no
+    // visible load latency.
+    HomeBottomNativeAd.preload();
     _controller.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
   }

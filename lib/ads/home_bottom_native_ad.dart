@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'global_native_ad.dart';
+import 'native_ad_cache.dart';
 
 /// Native ad shown below the Play button on the home screen.
 ///
@@ -29,6 +30,13 @@ class HomeBottomNativeAd extends StatelessWidget {
   static const double _ctaHeight = 44;
   static const double _gap = 8;
   static const double _outerPadding = 12;
+
+  /// Warm the [NativeAdCache] for this placement so the next instance
+  /// of this widget can render instantly. Safe to call multiple times;
+  /// no-op if the cache is already filled or a load is in flight.
+  static void preload() {
+    NativeAdCache.preload(adUnitId: _adUnitId, factoryId: _factoryId);
+  }
 
   /// Total rendered height of the ad card for the given outer [width].
   /// Used by the home screen to reserve scroll padding behind the
@@ -67,6 +75,7 @@ class HomeBottomNativeAd extends StatelessWidget {
             adUnitId: _adUnitId,
             factoryId: _factoryId,
             adPlacement: placement,
+            useCache: true,
             content: (ad) => SizedBox(
               height: totalHeight,
               child: AdWidget(ad: ad),

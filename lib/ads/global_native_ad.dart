@@ -3,6 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'global_inter_ad.dart'
     show AdPlacementCallback, AdLoadFailedCallback, AdPaidCallback;
+import 'native_ad_cache.dart';
 
 /// Builder that turns a loaded [NativeAd] into a widget subtree.
 ///
@@ -49,6 +50,7 @@ class GlobalNativeAd extends StatefulWidget {
     this.onClicked,
     this.onPaid,
     this.adPlacement,
+    this.useCache = false,
   });
 
   final String adUnitId;
@@ -70,6 +72,12 @@ class GlobalNativeAd extends StatefulWidget {
   final AdPlacementCallback? onClicked;
   final AdPaidCallback? onPaid;
   final String? adPlacement;
+
+  /// If true, the widget first tries to consume a preloaded ad from
+  /// [NativeAdCache] before triggering a fresh load. Per-instance event
+  /// callbacks (onPaid, onClicked, onImpression) are NOT delivered for
+  /// cached ads, since the listener is owned by the cache.
+  final bool useCache;
 
   @override
   State<GlobalNativeAd> createState() => _GlobalNativeAdState();
@@ -97,6 +105,23 @@ class _GlobalNativeAdState extends State<GlobalNativeAd> {
   }
 
   void _loadAd() {
+    if (widget.useCache) {
+      final cached = NativeAdCache.tryConsume(
+        adUnitId: widget.adUnitId,
+        factoryId: widget.factoryId,
+      );
+      if (cached != null) {
+        // Cache hit — render immediately. Schedule the loaded callback
+        // for the next frame so callers can rely on a normal lifecycle.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          widget.onLoaded?.call(widget.adPlacement);
+        });
+        _nativeAd = cached;
+        return;
+      }
+    }
+
     final ad = NativeAd(
       adUnitId: widget.adUnitId,
       factoryId: widget.factoryId,
