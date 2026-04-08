@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/home_bottom_native_ad.dart';
 import '../l10n/app_strings.dart';
 import '../services/locale_controller.dart';
 import '../services/theme_controller.dart';
@@ -33,12 +34,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      body: Column(
         children: [
-          _buildLanguageTile(t),
-          const SizedBox(height: 12),
-          _buildThemeTile(t),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                _buildLanguageTile(t),
+                const SizedBox(height: 12),
+                _buildThemeTile(t),
+              ],
+            ),
+          ),
+          SafeArea(
+            top: false,
+            left: false,
+            right: false,
+            child: const HomeBottomNativeAd(
+              placement: 'settings_bottom',
+            ),
+          ),
         ],
       ),
     );

@@ -10,7 +10,14 @@ import 'global_native_ad.dart';
 /// the outer card styling (full-width, bgCard, 12px content padding,
 /// no border radius) and the height allocation for the AdWidget.
 class HomeBottomNativeAd extends StatelessWidget {
-  const HomeBottomNativeAd({super.key});
+  const HomeBottomNativeAd({
+    super.key,
+    this.placement = 'home_bottom',
+  });
+
+  /// Analytics label passed through to [GlobalNativeAd]. Override when
+  /// reusing this layout on a different screen (e.g. `'settings_bottom'`).
+  final String placement;
 
   // Google test native ad unit id.
   static const String _adUnitId = 'ca-app-pub-3940256099942544/2247696110';
@@ -59,7 +66,7 @@ class HomeBottomNativeAd extends StatelessWidget {
           return GlobalNativeAd(
             adUnitId: _adUnitId,
             factoryId: _factoryId,
-            adPlacement: 'home_bottom',
+            adPlacement: placement,
             content: (ad) => SizedBox(
               height: totalHeight,
               child: AdWidget(ad: ad),
