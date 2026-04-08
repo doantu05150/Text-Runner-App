@@ -73,29 +73,6 @@ class HomeBottomNativeAdFactory: NSObject, FLTNativeAdFactory {
         infoRow.addArrangedSubview(textColumn)
         root.addArrangedSubview(infoRow)
 
-        // --- Ad Badge ---
-        let badgeContainer = UIStackView()
-        badgeContainer.axis = .horizontal
-        badgeContainer.alignment = .leading
-
-        let badgeLabel = PaddedLabel()
-        badgeLabel.text = "Ad"
-        badgeLabel.textColor = .black
-        badgeLabel.font = UIFont.boldSystemFont(ofSize: 12)
-        badgeLabel.backgroundColor = UIColor(
-            red: 0xFD / 255.0,
-            green: 0xC7 / 255.0,
-            blue: 0x00 / 255.0,
-            alpha: 1.0
-        )
-        badgeLabel.textInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-        badgeLabel.translatesAutoresizingMaskIntoConstraints = false
-        badgeLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-        badgeContainer.addArrangedSubview(badgeLabel)
-        badgeContainer.addArrangedSubview(UIView()) // spacer to keep badge left-aligned
-        root.addArrangedSubview(badgeContainer)
-
         // --- Ad Media (fills remaining space; Flutter side reserves 16:9) ---
         let mediaView = GADMediaView()
         mediaView.translatesAutoresizingMaskIntoConstraints = false
@@ -117,6 +94,26 @@ class HomeBottomNativeAdFactory: NSObject, FLTNativeAdFactory {
         ctaButton.translatesAutoresizingMaskIntoConstraints = false
         ctaButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
         root.addArrangedSubview(ctaButton)
+
+        // --- Ad Badge (absolute, top-left overlay) ---
+        let badgeLabel = PaddedLabel()
+        badgeLabel.text = "Ad"
+        badgeLabel.textColor = .black
+        badgeLabel.font = UIFont.boldSystemFont(ofSize: 9)
+        badgeLabel.backgroundColor = UIColor(
+            red: 0xFD / 255.0,
+            green: 0xC7 / 255.0,
+            blue: 0x00 / 255.0,
+            alpha: 1.0
+        )
+        badgeLabel.textInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
+        badgeLabel.translatesAutoresizingMaskIntoConstraints = false
+        adView.addSubview(badgeLabel)
+        NSLayoutConstraint.activate([
+            badgeLabel.topAnchor.constraint(equalTo: adView.topAnchor),
+            badgeLabel.leadingAnchor.constraint(equalTo: adView.leadingAnchor),
+            badgeLabel.heightAnchor.constraint(equalToConstant: 14),
+        ])
 
         // Bind asset views
         adView.iconView = iconView
