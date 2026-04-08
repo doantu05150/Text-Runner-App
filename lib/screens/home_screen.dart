@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../services/locale_controller.dart';
 import '../theme/app_theme.dart';
-import '../utils/font_utils.dart';
 import '../widgets/text_input_widget.dart';
 import '../widgets/action_bar_widget.dart';
 import '../widgets/preview_run_widget.dart';
 import '../widgets/app_button.dart';
+import '../widgets/home_app_bar.dart';
+import '../widgets/home_settings_dialog.dart';
+import '../widgets/quick_themes_widget.dart';
 import '../models/saved_item.dart';
 import '../models/display_style.dart';
+import '../models/home_text_settings.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,16 +36,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _keyboardVisible = false;
   int _adReloadKey = 0;
 
-  // Settings
-  double _fontSize = 80;
-  String _fontFamily = 'Orbitron';
-  FontWeight _fontWeight = FontWeight.w700;
-  Color _textColor = Colors.pink;
-  Color _backgroundColor = AppColors.bgMain;
-  double _speed = 250.0;
-  DisplayStyle _displayStyle = DisplayStyle.normal;
-  bool _blinkText = false;
-  double _blinkSpeed = 500.0; // milliseconds
+  // Text settings (font, colors, speed, blink, …).
+  HomeTextSettings _settings = HomeTextSettings(
+    fontSize: 80,
+    fontFamily: 'Orbitron',
+    fontWeight: FontWeight.w700,
+    textColor: Colors.pink,
+    backgroundColor: AppColors.bgMain,
+    speed: 250.0,
+    displayStyle: DisplayStyle.normal,
+    blinkText: false,
+    blinkSpeed: 500.0,
+  );
 
   static const double _inputFontSize = 18.0;
   static const double _minInputHeight = 56.0;
@@ -54,44 +59,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // Preview (debounced)
   String _previewText = 'Hello, GlowTextify!';
   Timer? _debounceTimer;
-
-  // Temporary settings for dialog
-  late double _tempFontSize;
-  late String _tempFontFamily;
-  late FontWeight _tempFontWeight;
-  late Color _tempTextColor;
-  late Color _tempBackgroundColor;
-  late double _tempSpeed;
-  late DisplayStyle _tempDisplayStyle;
-  late bool _tempBlinkText;
-  late double _tempBlinkSpeed;
-
-  final List<double> _fontSizeOptions = List.generate(
-    ((240 - 56) ~/ 4) + 1,
-    (i) => (56 + i * 4).toDouble(),
-  );
-
-  static const _fontWeightOptions = [
-    (label: 'Thin', weight: FontWeight.w100),
-    (label: 'Light', weight: FontWeight.w300),
-    (label: 'Regular', weight: FontWeight.w400),
-    (label: 'Medium', weight: FontWeight.w500),
-    (label: 'Bold', weight: FontWeight.w700),
-    (label: 'Black', weight: FontWeight.w900),
-  ];
-
-  final List<String> _fontFamilyOptions = [
-    'Roboto',
-    'Press Start 2P',
-    'VT323',
-    'Silkscreen',
-    'DotGothic16',
-    'Share Tech Mono',
-    'Orbitron',
-    'Electrolize',
-    'Audiowide',
-    'Russo One',
-  ];
 
   static const String _savedInterAdUnitId =
       'ca-app-pub-3940256099942544/1033173712';
@@ -108,15 +75,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _preloadSavedInterAd();
-    _tempFontSize = _fontSize;
-    _tempFontFamily = _fontFamily;
-    _tempFontWeight = _fontWeight;
-    _tempTextColor = _textColor;
-    _tempBackgroundColor = _backgroundColor;
-    _tempSpeed = _speed;
-    _tempDisplayStyle = _displayStyle;
-    _tempBlinkText = _blinkText;
-    _tempBlinkSpeed = _blinkSpeed;
     _controller.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
   }
@@ -193,15 +151,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final savedItem = SavedItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       text: _controller.text,
-      fontSize: _fontSize,
-      fontFamily: _fontFamily,
-      fontWeightValue: _fontWeight.value,
-      textColorValue: _textColor.toARGB32(),
-      backgroundColorValue: _backgroundColor.toARGB32(),
-      speed: _speed,
-      displayStyle: _displayStyle.name,
-      blinkText: _blinkText,
-      blinkSpeed: _blinkSpeed,
+      fontSize: _settings.fontSize,
+      fontFamily: _settings.fontFamily,
+      fontWeightValue: _settings.fontWeight.value,
+      textColorValue: _settings.textColor.toARGB32(),
+      backgroundColorValue: _settings.backgroundColor.toARGB32(),
+      speed: _settings.speed,
+      displayStyle: _settings.displayStyle.name,
+      blinkText: _settings.blinkText,
+      blinkSpeed: _settings.blinkSpeed,
       createdAt: DateTime.now(),
     );
 
@@ -241,487 +199,40 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       '/run',
       arguments: {
         'text': _controller.text,
-        'fontSize': _fontSize,
-        'fontFamily': _fontFamily,
-        'textColor': _textColor,
-        'backgroundColor': _backgroundColor,
-        'fontWeight': _fontWeight,
-        'speed': _speed,
-        'displayStyle': _displayStyle,
-        'blinkText': _blinkText,
-        'blinkSpeed': _blinkSpeed,
+        'fontSize': _settings.fontSize,
+        'fontFamily': _settings.fontFamily,
+        'textColor': _settings.textColor,
+        'backgroundColor': _settings.backgroundColor,
+        'fontWeight': _settings.fontWeight,
+        'speed': _settings.speed,
+        'displayStyle': _settings.displayStyle,
+        'blinkText': _settings.blinkText,
+        'blinkSpeed': _settings.blinkSpeed,
       },
     );
   }
 
-  void _showSettingsDialog() {
-    // Initialize temp values with current settings
-    _tempFontSize = _fontSize;
-    _tempFontFamily = _fontFamily;
-    _tempFontWeight = _fontWeight;
-    _tempTextColor = _textColor;
-    _tempBackgroundColor = _backgroundColor;
-    _tempSpeed = _speed;
-    _tempDisplayStyle = _displayStyle;
-    _tempBlinkText = _blinkText;
-    _tempBlinkSpeed = _blinkSpeed;
-
-    final t = LocaleController.instance.strings;
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AlertDialog(
-            backgroundColor: AppColors.bgCard,
-            contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(color: AppColors.border),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  t.settings,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            content: SizedBox(
-              width: 420,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Display Style
-                  _buildSettingRow(
-                    icon: Icons.grid_view_rounded,
-                    label: t.displayStyle,
-                    child: _buildDropdown<DisplayStyle>(
-                      value: _tempDisplayStyle,
-                      items: [
-                        DropdownMenuItem(
-                          value: DisplayStyle.normal,
-                          child: Text(t.normal, style: TextStyle(color: AppColors.textPrimary)),
-                        ),
-                        DropdownMenuItem(
-                          value: DisplayStyle.led,
-                          child: Text('LED', style: TextStyle(color: AppColors.textPrimary)),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => _tempDisplayStyle = value);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Font Size
-                  _buildSettingRow(
-                    icon: Icons.format_size_rounded,
-                    label: t.fontSize,
-                    child: _buildDropdown<double>(
-                      value: _tempFontSize,
-                      items: _fontSizeOptions.map((size) => DropdownMenuItem(
-                        value: size,
-                        child: Text('${size.toInt()}px', style: TextStyle(color: AppColors.textPrimary)),
-                      )).toList(),
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => _tempFontSize = value);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Font Family
-                  _buildSettingRow(
-                    icon: Icons.font_download_rounded,
-                    label: t.fontFamily,
-                    child: _buildDropdown<String>(
-                      value: _tempFontFamily,
-                      items: _fontFamilyOptions.map((font) => DropdownMenuItem(
-                        value: font,
-                        child: Text(font, style: googleFontStyle(font, baseStyle: TextStyle(color: AppColors.textPrimary)), overflow: TextOverflow.ellipsis),
-                      )).toList(),
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => _tempFontFamily = value);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Font Weight
-                  _buildSettingRow(
-                    icon: Icons.format_bold_rounded,
-                    label: t.fontWeight,
-                    child: _buildDropdown<FontWeight>(
-                      value: _tempFontWeight,
-                      items: _fontWeightOptions.map((opt) => DropdownMenuItem(
-                        value: opt.weight,
-                        child: Text(opt.label, style: TextStyle(color: AppColors.textPrimary)),
-                      )).toList(),
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => _tempFontWeight = value);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Speed
-                  _buildSettingRow(
-                    icon: Icons.speed_rounded,
-                    label: t.speed,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SliderTheme(
-                            data: SliderTheme.of(context).copyWith(
-                              activeTrackColor: AppColors.primary,
-                              inactiveTrackColor: AppColors.border,
-                              thumbColor: AppColors.primary,
-                              overlayColor: AppColors.primarySoft,
-                              trackHeight: 3,
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-                            ),
-                            child: Slider(
-                              value: _tempSpeed,
-                              min: 50,
-                              max: 600,
-                              divisions: (600 - 50) ~/ 10,
-                              onChanged: (value) => setDialogState(() => _tempSpeed = value),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 40,
-                          child: Text(
-                            '${_tempSpeed.round()}',
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                            textAlign: TextAlign.right,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Text Color
-                  _buildSettingRow(
-                    icon: Icons.palette_rounded,
-                    label: t.textColor,
-                    child: _buildColorSwatch(_tempTextColor, () => _showColorPickerInDialog(setDialogState, true)),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Background Color
-                  _buildSettingRow(
-                    icon: Icons.format_color_fill_rounded,
-                    label: t.backgroundColor,
-                    child: _buildColorSwatch(_tempBackgroundColor, () => _showColorPickerInDialog(setDialogState, false)),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Blink Text
-                  Row(
-                    children: [
-                      Icon(Icons.flare_rounded, size: 20, color: AppColors.textSecondary),
-                      const SizedBox(width: 12),
-                      Text(t.blink, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                      SizedBox(
-                        height: 32,
-                        child: FittedBox(
-                          child: Switch(
-                            value: _tempBlinkText,
-                            activeThumbColor: AppColors.primary,
-                            onChanged: (value) => setDialogState(() => _tempBlinkText = value),
-                          ),
-                        ),
-                      ),
-                      if (_tempBlinkText) ...[
-                        Expanded(
-                          child: SliderTheme(
-                            data: SliderTheme.of(context).copyWith(
-                              activeTrackColor: AppColors.primary,
-                              inactiveTrackColor: AppColors.border,
-                              thumbColor: AppColors.primary,
-                              overlayColor: AppColors.primarySoft,
-                              trackHeight: 3,
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-                            ),
-                            child: Slider(
-                              value: _tempBlinkSpeed,
-                              min: 100,
-                              max: 1000,
-                              divisions: 18,
-                              onChanged: (value) => setDialogState(() => _tempBlinkSpeed = value),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 40,
-                          child: Text(
-                            '${_tempBlinkSpeed.round()}',
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                            textAlign: TextAlign.right,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            actions: [
-              AppButton(
-                isPrimary: false,
-                onPressed: () => Navigator.pop(context),
-                child: Text(t.cancel),
-              ),
-              const SizedBox(width: 8),
-              AppButton(
-                onPressed: () {
-                  setState(() {
-                    _fontSize = _tempFontSize;
-                    _fontFamily = _tempFontFamily;
-                    _fontWeight = _tempFontWeight;
-                    _textColor = _tempTextColor;
-                    _backgroundColor = _tempBackgroundColor;
-                    _speed = _tempSpeed;
-                    _displayStyle = _tempDisplayStyle;
-                    _blinkText = _tempBlinkText;
-                    _blinkSpeed = _tempBlinkSpeed;
-                  });
-                  Navigator.pop(context);
-                },
-                child: Text(t.save),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+  Future<void> _openSettingsDialog() async {
+    final result = await showHomeSettingsDialog(context, current: _settings);
+    if (result != null && mounted) {
+      setState(() => _settings = result);
+    }
   }
 
-  Widget _buildSettingRow({required IconData icon, required String label, required Widget child}) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: AppColors.textSecondary),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 80,
-          child: Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-        ),
-        Expanded(child: child),
-      ],
-    );
-  }
+  void _onSavedPressed() {
+    void goToSaved(String? _) {
+      if (!mounted) return;
+      Navigator.pushNamed(context, '/saved');
+      _preloadSavedInterAd();
+    }
 
-  Widget _buildDropdown<T>({required T value, required List<DropdownMenuItem<T>> items, required ValueChanged<T?> onChanged}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: AppColors.bgMain,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          value: value,
-          isExpanded: true,
-          dropdownColor: AppColors.bgCard,
-          items: items,
-          onChanged: onChanged,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildColorSwatch(Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 44,
-        decoration: BoxDecoration(
-          color: AppColors.bgMain,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.border),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'monospace'),
-            ),
-            const Spacer(),
-            Icon(Icons.colorize_rounded, size: 18, color: AppColors.textMuted),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showColorPickerInDialog(void Function(void Function()) setDialogState, bool isTextColor) {
-    final List<Color> colors = [
-      Colors.black,
-      Colors.white,
-      Colors.red,
-      Colors.pink,
-      Colors.purple,
-      Colors.deepPurple,
-      Colors.indigo,
-      Colors.blue,
-      Colors.lightBlue,
-      Colors.cyan,
-      Colors.teal,
-      Colors.green,
-      Colors.lightGreen,
-      Colors.lime,
-      Colors.yellow,
-      Colors.amber,
-      Colors.orange,
-      Colors.deepOrange,
-      Colors.brown,
-      Colors.grey,
-      Colors.blueGrey,
-    ];
-
-    final currentColor = isTextColor ? _tempTextColor : _tempBackgroundColor;
-    final t = LocaleController.instance.strings;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColors.border),
-        ),
-        title: Text(
-          isTextColor ? t.selectTextColor : t.selectBackgroundColor,
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        content: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: colors.map((color) {
-            final isSelected = color.toARGB32() == currentColor.toARGB32();
-            return GestureDetector(
-              onTap: () {
-                setDialogState(() {
-                  if (isTextColor) {
-                    _tempTextColor = color;
-                  } else {
-                    _tempBackgroundColor = color;
-                  }
-                });
-                Navigator.pop(context);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? AppColors.primary : AppColors.border,
-                    width: isSelected ? 2.5 : 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.35),
-                            blurRadius: 12,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: isSelected
-                    ? Icon(
-                        Icons.check_rounded,
-                        size: 20,
-                        color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
-                      )
-                    : null,
-              ),
-            );
-          }).toList(),
-        ),
-        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        actions: [
-          AppButton(
-            isPrimary: false,
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.cancel),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickTheme({required String label, required Color bgColor, required Color textColor}) {
-    final isSelected = _backgroundColor.toARGB32() == bgColor.toARGB32() &&
-        _textColor.toARGB32() == textColor.toARGB32() &&
-        _displayStyle == DisplayStyle.led;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _backgroundColor = bgColor;
-          _textColor = textColor;
-          _displayStyle = DisplayStyle.led;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
+    if (GlobalInterAd.isReady) {
+      GlobalInterAd.showAd(onDismissed: goToSaved);
+    } else {
+      // Not cached yet — just navigate and let the next visit
+      // benefit from the preload that's already in flight.
+      goToSaved(null);
+    }
   }
 
   @override
@@ -731,179 +242,115 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       builder: (context, _, __) {
         final t = LocaleController.instance.strings;
         return Scaffold(
-      backgroundColor: AppColors.bgMain,
-      appBar: AppBar(
-        elevation: 0,
-        titleSpacing: 20,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primarySoft,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.text_fields_rounded, color: AppColors.primary, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'GlowTextify LED',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          AppIconButton(
-            icon: Icons.bookmark_rounded,
-            onPressed: () {
-              void goToSaved(String? _) {
-                if (!mounted) return;
-                Navigator.pushNamed(context, '/saved');
-                _preloadSavedInterAd();
-              }
-
-              if (GlobalInterAd.isReady) {
-                GlobalInterAd.showAd(onDismissed: goToSaved);
-              } else {
-                // Not cached yet — just navigate and let the next visit
-                // benefit from the preload that's already in flight.
-                goToSaved(null);
-              }
-            },
-            tooltip: t.saved,
+          backgroundColor: AppColors.bgMain,
+          appBar: HomeAppBar(
+            onSavedPressed: _onSavedPressed,
+            onSettingsPressed: () =>
+                Navigator.pushNamed(context, '/settings'),
           ),
-          const SizedBox(width: 8),
-          AppIconButton(
-            icon: Icons.settings_rounded,
-            onPressed: () => Navigator.pushNamed(context, '/settings'),
-            tooltip: t.settings,
-          ),
-          const SizedBox(width: 20),
-        ],
-      ),
-      body: LayoutBuilder(builder: (context, constraints) {
-        final bottomInset = MediaQuery.of(context).padding.bottom;
-        final adHeight = _keyboardVisible
-            ? 0.0
-            : HomeBottomNativeAd.heightForWidth(constraints.maxWidth);
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(20, 8, 20, adHeight + bottomInset),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-            // Action Bar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+          body: LayoutBuilder(builder: (context, constraints) {
+            final bottomInset = MediaQuery.of(context).padding.bottom;
+            final adHeight = _keyboardVisible
+                ? 0.0
+                : HomeBottomNativeAd.heightForWidth(constraints.maxWidth);
+            return Stack(
               children: [
-                ActionBarWidget(
-                  iconColor: AppColors.textSecondary,
-                  onSettingsPressed: _showSettingsDialog,
-                  onSavePressed: _saveText,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Preview
-            PreviewRunWidget(
-              text: _previewText,
-              fontSize: _fontSize,
-              fontFamily: _fontFamily,
-              fontWeight: _fontWeight,
-              textColor: _textColor,
-              backgroundColor: _backgroundColor,
-              speed: _speed,
-              displayStyle: _displayStyle,
-              blinkText: _blinkText,
-              blinkSpeed: _blinkSpeed,
-            ),
-            const SizedBox(height: 12),
-            // Quick Themes
-            LayoutBuilder(builder: (context, constraints) {
-              final itemWidth = (constraints.maxWidth - 12 * 3) / 4;
-              return GridView.count(
-                crossAxisCount: 4,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: itemWidth / 60,
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildQuickTheme(
-                  label: 'Textify',
-                  bgColor: Colors.black,
-                  textColor: Colors.pink,
-                ),
-                _buildQuickTheme(
-                  label: 'Glow',
-                  bgColor: Colors.white,
-                  textColor: Colors.pink,
-                ),
-                _buildQuickTheme(
-                  label: 'LED',
-                  bgColor: Colors.red,
-                  textColor: Colors.black,
-                ),
-                _buildQuickTheme(
-                  label: 'App',
-                  bgColor: Colors.greenAccent,
-                  textColor: Colors.black,
-                ),
-              ],
-              );
-            }),
-            const SizedBox(height: 12),
-            // Input section
-            TextInputWidget(
-              controller: _controller,
-              fontSize: _inputFontSize,
-              fontFamily: _fontFamily,
-              textColor: AppColors.textPrimary,
-              inputHeight: _inputHeight,
-              verticalPadding: _verticalPadding,
-              onChanged: _onTextChanged,
-              shouldExpand: false,
-            ),
-            const SizedBox(height: 16),
+                Positioned.fill(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(20, 8, 20, adHeight + bottomInset),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Action Bar
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ActionBarWidget(
+                              iconColor: AppColors.textSecondary,
+                              onSettingsPressed: _openSettingsDialog,
+                              onSavePressed: _saveText,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Preview
+                        PreviewRunWidget(
+                          text: _previewText,
+                          fontSize: _settings.fontSize,
+                          fontFamily: _settings.fontFamily,
+                          fontWeight: _settings.fontWeight,
+                          textColor: _settings.textColor,
+                          backgroundColor: _settings.backgroundColor,
+                          speed: _settings.speed,
+                          displayStyle: _settings.displayStyle,
+                          blinkText: _settings.blinkText,
+                          blinkSpeed: _settings.blinkSpeed,
+                        ),
+                        const SizedBox(height: 12),
+                        // Quick Themes
+                        QuickThemesGrid(
+                          themes: QuickThemesGrid.defaultThemes,
+                          currentTextColor: _settings.textColor,
+                          currentBackgroundColor: _settings.backgroundColor,
+                          currentDisplayStyle: _settings.displayStyle,
+                          onSelected: (theme) {
+                            setState(() {
+                              _settings = _settings.copyWith(
+                                backgroundColor: theme.backgroundColor,
+                                textColor: theme.textColor,
+                                displayStyle: DisplayStyle.led,
+                              );
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Input section
+                        TextInputWidget(
+                          controller: _controller,
+                          fontSize: _inputFontSize,
+                          fontFamily: _settings.fontFamily,
+                          textColor: AppColors.textPrimary,
+                          inputHeight: _inputHeight,
+                          verticalPadding: _verticalPadding,
+                          onChanged: _onTextChanged,
+                          shouldExpand: false,
+                        ),
+                        const SizedBox(height: 16),
 
-            // Play Button
-            AppButton(
-              onPressed: _startTextRunner,
-              icon: Icons.play_arrow_rounded,
-              child: Text(
-                t.run,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Offstage(
-                offstage: _keyboardVisible,
-                child: SafeArea(
-                  top: false,
-                  left: false,
-                  right: false,
-                  child: HomeBottomNativeAd(
-                    key: ValueKey(_adReloadKey),
+                        // Play Button
+                        AppButton(
+                          onPressed: _startTextRunner,
+                          icon: Icons.play_arrow_rounded,
+                          child: Text(
+                            t.run,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Offstage(
+                    offstage: _keyboardVisible,
+                    child: SafeArea(
+                      top: false,
+                      left: false,
+                      right: false,
+                      child: HomeBottomNativeAd(
+                        key: ValueKey(_adReloadKey),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }),
         );
-      }),
-    );
       },
     );
   }
