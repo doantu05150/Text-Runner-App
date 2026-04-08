@@ -36,9 +36,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _buildThemeTile(t),
-          const SizedBox(height: 12),
           _buildLanguageTile(t),
+          const SizedBox(height: 12),
+          _buildThemeTile(t),
         ],
       ),
     );

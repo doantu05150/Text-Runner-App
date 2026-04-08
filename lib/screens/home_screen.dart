@@ -21,10 +21,17 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final TextEditingController _controller = TextEditingController(
     text: 'Hello, GlowTextify!',
   );
+
+  // Tracks soft-keyboard visibility so we can hide the bottom native ad
+  // (it would otherwise overlay the home content) and force a fresh ad
+  // load while the keyboard is up, so a new ad is ready by the time the
+  // keyboard closes.
+  bool _keyboardVisible = false;
+  int _adReloadKey = 0;
 
   // Settings
   double _fontSize = 80;
@@ -99,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _preloadSavedInterAd();
     _tempFontSize = _fontSize;
     _tempFontFamily = _fontFamily;
@@ -777,7 +785,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: LayoutBuilder(builder: (context, constraints) {
         final bottomInset = MediaQuery.of(context).padding.bottom;
-        final adHeight = HomeBottomNativeAd.heightForWidth(constraints.maxWidth);
+        final adHeight = _keyboardVisible
+            ? 0.0
+            : HomeBottomNativeAd.heightForWidth(constraints.maxWidth);
         return Stack(
           children: [
             Positioned.fill(
@@ -878,11 +888,16 @@ class _HomeScreenState extends State<HomeScreen> {
               left: 0,
               right: 0,
               bottom: 0,
-              child: SafeArea(
-                top: false,
-                left: false,
-                right: false,
-                child: const HomeBottomNativeAd(),
+              child: Offstage(
+                offstage: _keyboardVisible,
+                child: SafeArea(
+                  top: false,
+                  left: false,
+                  right: false,
+                  child: HomeBottomNativeAd(
+                    key: ValueKey(_adReloadKey),
+                  ),
+                ),
               ),
             ),
           ],
@@ -895,9 +910,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _debounceTimer?.cancel();
     _controller.removeListener(_onTextChanged);
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    if (!mounted) return;
+    final view = View.of(context);
+    final newKeyboardVisible = view.viewInsets.bottom > 0;
+    if (newKeyboardVisible == _keyboardVisible) return;
+    setState(() {
+      _keyboardVisible = newKeyboardVisible;
+      // When the keyboard appears, hide the current ad and immediately
+      // kick off a fresh load by bumping the widget key. The new ad
+      // loads in the background while it's offstage, so it's ready to
+      // be revealed the moment the keyboard goes away.
+      if (newKeyboardVisible) _adReloadKey++;
+    });
   }
 }
