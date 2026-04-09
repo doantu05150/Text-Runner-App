@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/home_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/run_screen.dart';
 import 'screens/saved_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/splash_screen.dart';
 import 'models/display_style.dart';
 import 'services/locale_controller.dart';
 import 'services/theme_controller.dart';
@@ -43,9 +45,20 @@ class MyApp extends StatelessWidget {
       title: 'GlowTextify LED',
       theme: AppTheme.current,
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splash',
       onGenerateRoute: (settings) {
-        if (settings.name == '/') {
+        if (settings.name == '/splash') {
+          return MaterialPageRoute(builder: (context) => const SplashScreen());
+        } else if (settings.name == '/onboarding/1') {
+          return MaterialPageRoute(
+              builder: (context) => const OnboardingPage1());
+        } else if (settings.name == '/onboarding/2') {
+          return MaterialPageRoute(
+              builder: (context) => const OnboardingPage2());
+        } else if (settings.name == '/onboarding/3') {
+          return MaterialPageRoute(
+              builder: (context) => const OnboardingPage3());
+        } else if (settings.name == '/') {
           return MaterialPageRoute(builder: (context) => const HomeScreen());
         } else if (settings.name == '/saved') {
           return MaterialPageRoute(builder: (context) => const SavedScreen());

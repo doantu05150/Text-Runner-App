@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'global_inter_ad.dart' show AdPlacementCallback;
 import 'global_native_ad.dart';
 import 'native_ad_cache.dart';
 
@@ -14,11 +15,28 @@ class HomeBottomNativeAd extends StatelessWidget {
   const HomeBottomNativeAd({
     super.key,
     this.placement = 'home_bottom',
+    this.cacheKey = 'home_bottom',
+    this.cacheAutoRefill = true,
+    this.onLoaded,
   });
 
   /// Analytics label passed through to [GlobalNativeAd]. Override when
   /// reusing this layout on a different screen (e.g. `'settings_bottom'`).
   final String placement;
+
+  /// Cache slot to consume from / preload into. Using distinct keys
+  /// per placement lets us hand off ads from one screen to the next
+  /// (e.g. splash → onboarding 1 → onboarding 2 → ...).
+  final String cacheKey;
+
+  /// Whether the cache should refill itself after consume. Disable for
+  /// one-shot screens like splash and onboarding to avoid loading an
+  /// ad that will never be shown.
+  final bool cacheAutoRefill;
+
+  /// Fires once the ad has loaded (either from cache or fresh). Useful
+  /// for gating UI affordances like an enabled "Next" button.
+  final AdPlacementCallback? onLoaded;
 
   // Google test native ad unit id.
   static const String _adUnitId = 'ca-app-pub-3940256099942544/2247696110';
@@ -31,11 +49,18 @@ class HomeBottomNativeAd extends StatelessWidget {
   static const double _gap = 8;
   static const double _outerPadding = 12;
 
+  /// Default cache slot used by the home-bottom placement.
+  static const String defaultCacheKey = 'home_bottom';
+
   /// Warm the [NativeAdCache] for this placement so the next instance
   /// of this widget can render instantly. Safe to call multiple times;
   /// no-op if the cache is already filled or a load is in flight.
-  static void preload() {
-    NativeAdCache.preload(adUnitId: _adUnitId, factoryId: _factoryId);
+  static void preload({String key = defaultCacheKey}) {
+    NativeAdCache.preload(
+      key: key,
+      adUnitId: _adUnitId,
+      factoryId: _factoryId,
+    );
   }
 
   /// Total rendered height of the ad card for the given outer [width].
@@ -76,6 +101,9 @@ class HomeBottomNativeAd extends StatelessWidget {
             factoryId: _factoryId,
             adPlacement: placement,
             useCache: true,
+            cacheKey: cacheKey,
+            cacheAutoRefill: cacheAutoRefill,
+            onLoaded: onLoaded,
             content: (ad) => SizedBox(
               height: totalHeight,
               child: AdWidget(ad: ad),

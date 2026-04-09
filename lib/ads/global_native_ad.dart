@@ -51,6 +51,8 @@ class GlobalNativeAd extends StatefulWidget {
     this.onPaid,
     this.adPlacement,
     this.useCache = false,
+    this.cacheKey,
+    this.cacheAutoRefill = true,
   });
 
   final String adUnitId;
@@ -79,6 +81,15 @@ class GlobalNativeAd extends StatefulWidget {
   /// cached ads, since the listener is owned by the cache.
   final bool useCache;
 
+  /// Optional explicit cache slot for [useCache]. If null and
+  /// [useCache] is true, defaults to `'$factoryId|$adUnitId'`.
+  final String? cacheKey;
+
+  /// Whether to schedule a background refill of the cache slot when
+  /// consuming. Set to false for one-shot screens (splash, onboarding)
+  /// to avoid loading an ad that will never be shown.
+  final bool cacheAutoRefill;
+
   @override
   State<GlobalNativeAd> createState() => _GlobalNativeAdState();
 }
@@ -106,9 +117,12 @@ class _GlobalNativeAdState extends State<GlobalNativeAd> {
 
   void _loadAd() {
     if (widget.useCache) {
+      final key = widget.cacheKey ?? '${widget.factoryId}|${widget.adUnitId}';
       final cached = NativeAdCache.tryConsume(
+        key: key,
         adUnitId: widget.adUnitId,
         factoryId: widget.factoryId,
+        autoRefill: widget.cacheAutoRefill,
       );
       if (cached != null) {
         // Cache hit — render immediately. Schedule the loaded callback

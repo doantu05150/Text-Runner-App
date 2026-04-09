@@ -27,33 +27,41 @@ class NativeAdCache {
   static final Map<String, _Entry> _ready = {};
   static final Set<String> _loading = {};
 
-  /// Ensures a NativeAd is being loaded for the given key. No-op if a
+  /// Ensures a NativeAd is being loaded for the given [key]. No-op if a
   /// fresh ad is already cached or a load is already in flight.
+  ///
+  /// [key] is an arbitrary slot identifier (e.g. `'home_bottom'`,
+  /// `'onb_2'`). Multiple cache slots can share the same [adUnitId] /
+  /// [factoryId] — they'll just hold independent ads.
   static void preload({
+    required String key,
     required String adUnitId,
     required String factoryId,
   }) {
-    final key = _key(adUnitId, factoryId);
     if (_loading.contains(key)) return;
     final entry = _ready[key];
     if (entry != null && !entry.isExpired) return;
     _startLoad(key, adUnitId, factoryId);
   }
 
-  /// Returns a cached NativeAd if one is ready, removing it from the
-  /// cache. The caller takes ownership of the ad and is responsible for
-  /// disposing it.
+  /// Returns a cached NativeAd for [key] if one is ready, removing it
+  /// from the cache. The caller takes ownership of the ad and is
+  /// responsible for disposing it.
   ///
-  /// Always schedules a background refill so the next consumer also
-  /// benefits from a warm cache.
+  /// If [autoRefill] is true (default), schedules a background refill
+  /// for the same slot so the next consumer also benefits from a warm
+  /// cache. Set to false for one-shot slots like splash/onboarding
+  /// where the screen will only be visited once.
   static NativeAd? tryConsume({
+    required String key,
     required String adUnitId,
     required String factoryId,
+    bool autoRefill = true,
   }) {
-    final key = _key(adUnitId, factoryId);
     final entry = _ready.remove(key);
-    // Refill in the background for the next consumer.
-    preload(adUnitId: adUnitId, factoryId: factoryId);
+    if (autoRefill) {
+      preload(key: key, adUnitId: adUnitId, factoryId: factoryId);
+    }
     if (entry == null) return null;
     if (entry.isExpired) {
       entry.ad.dispose();
@@ -85,9 +93,6 @@ class NativeAdCache {
       ),
     ).load();
   }
-
-  static String _key(String adUnitId, String factoryId) =>
-      '$factoryId|$adUnitId';
 }
 
 class _Entry {
