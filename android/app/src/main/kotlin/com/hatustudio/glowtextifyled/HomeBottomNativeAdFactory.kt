@@ -1,4 +1,4 @@
-package com.divadot.textrun
+package com.hatustudio.glowtextifyled
 
 import android.content.Context
 import android.view.LayoutInflater

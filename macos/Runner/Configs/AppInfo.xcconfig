@@ -8,7 +8,7 @@
 PRODUCT_NAME = GlowTextify LED
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.divadot.textrun
+PRODUCT_BUNDLE_IDENTIFIER = com.hatustudio.glowtextifyled
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.divadot. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 com.hatustudio. All rights reserved.
