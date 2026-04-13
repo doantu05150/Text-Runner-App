@@ -10,6 +10,7 @@ import 'screens/saved_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'models/display_style.dart';
+import 'ads/global_app_open_ad.dart';
 import 'services/locale_controller.dart';
 import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
@@ -19,6 +20,7 @@ void main() async {
   await ThemeController.instance.load();
   await LocaleController.instance.load();
   unawaited(MobileAds.instance.initialize());
+  GlobalAppOpenAd.instance.init();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);

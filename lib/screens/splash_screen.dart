@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../ads/global_app_open_ad.dart';
 import '../ads/global_native_ad.dart';
 import '../ads/native_ad_cache.dart';
 import '../theme/app_theme.dart';
@@ -54,6 +55,9 @@ class _SplashScreenState extends State<SplashScreen>
       })
       ..forward();
 
+    // Preload the app open ad so it's ready when the splash finishes.
+    GlobalAppOpenAd.instance.loadAd();
+
     // Warm the cache for onboarding screen 1 so it renders instantly if
     // the user is new. One-shot — don't auto-refill.
     NativeAdCache.preload(
@@ -92,9 +96,19 @@ class _SplashScreenState extends State<SplashScreen>
     final seenOnboarding = prefs.getBool(_firstLaunchDoneKey) ?? false;
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacementNamed(
-      seenOnboarding ? '/' : '/onboarding/1',
+    final route = seenOnboarding ? '/' : '/onboarding/1';
+
+    // Show the app open ad before navigating. If no ad is ready, navigate
+    // immediately.
+    final shown = GlobalAppOpenAd.instance.showAdIfReady(
+      onDismissed: () {
+        if (!mounted) return;
+        Navigator.of(context).pushReplacementNamed(route);
+      },
     );
+    if (!shown) {
+      Navigator.of(context).pushReplacementNamed(route);
+    }
   }
 
   @override
