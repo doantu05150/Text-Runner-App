@@ -39,7 +39,7 @@ class HomeBottomNativeAd extends StatelessWidget {
   final AdPlacementCallback? onLoaded;
 
   // Google test native ad unit id.
-  static const String _adUnitId = 'ca-app-pub-3940256099942544/2247696110';
+  static const String _adUnitId = 'ca-app-pub-2729665939843867/8294237260';
   static const String _factoryId = 'homeBottomNativeAd';
 
   // Internal element heights (must match the native factory layout).

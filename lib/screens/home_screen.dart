@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Timer? _debounceTimer;
 
   static const String _savedInterAdUnitId =
-      'ca-app-pub-3940256099942544/1033173712';
+      'ca-app-pub-2729665939843867/6473280323';
 
   void _preloadSavedInterAd() {
     GlobalInterAd.loadAd(

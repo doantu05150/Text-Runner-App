@@ -10,7 +10,7 @@ import '../theme/app_theme.dart';
 
 // Shared ad constants. We reuse the home-bottom native factory since it
 // is already registered on the platform side.
-const String _nativeAdUnitId = 'ca-app-pub-3940256099942544/2247696110';
+const String _nativeAdUnitId = 'ca-app-pub-2729665939843867/1814803830';
 const String _nativeFactoryId = 'homeBottomNativeAd';
 const String _firstLaunchDoneKey = 'app.first_launch_done';
 

@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen>
   // Google test native ad unit id — matches HomeBottomNativeAd so the
   // same platform NativeAdFactory ('homeBottomNativeAd') is reused.
   static const String _nativeAdUnitId =
-      'ca-app-pub-3940256099942544/2247696110';
+      'ca-app-pub-2729665939843867/1814803830';
   static const String _nativeFactoryId = 'homeBottomNativeAd';
 
   static const String _onb1AdKey = 'onb_native_1';
