@@ -81,36 +81,36 @@ class HomeBottomNativeAd extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: const Color(0xFF121821),
-      padding: const EdgeInsets.all(12),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final mediaHeight = constraints.maxWidth * 9 / 28;
-          final totalHeight = _adInfoHeight
-              + _gap
-              + _badgeHeight
-              + _gap
-              + mediaHeight
-              + _gap
-              + _ctaHeight;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final mediaHeight = constraints.maxWidth * 9 / 28;
+        final totalHeight = _adInfoHeight
+            + _gap
+            + _badgeHeight
+            + _gap
+            + mediaHeight
+            + _gap
+            + _ctaHeight;
 
-          return GlobalNativeAd(
-            adUnitId: _adUnitId,
-            factoryId: _factoryId,
-            adPlacement: placement,
-            useCache: true,
-            cacheKey: cacheKey,
-            cacheAutoRefill: cacheAutoRefill,
-            onLoaded: onLoaded,
-            content: (ad) => SizedBox(
+        return GlobalNativeAd(
+          adUnitId: _adUnitId,
+          factoryId: _factoryId,
+          adPlacement: placement,
+          useCache: true,
+          cacheKey: cacheKey,
+          cacheAutoRefill: cacheAutoRefill,
+          onLoaded: onLoaded,
+          content: (ad) => Container(
+            width: double.infinity,
+            color: const Color(0xFF121821),
+            padding: const EdgeInsets.all(12),
+            child: SizedBox(
               height: totalHeight,
               child: AdWidget(ad: ad),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

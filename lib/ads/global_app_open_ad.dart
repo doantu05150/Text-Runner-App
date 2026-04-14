@@ -24,6 +24,18 @@ class GlobalAppOpenAd with WidgetsBindingObserver {
   DateTime? _loadedAt;
   static const Duration _adExpiry = Duration(hours: 4);
 
+  /// Timestamp of the last time an ad was shown (resume-triggered).
+  /// Used to enforce a cooldown so that the ad dismissal itself — which
+  /// causes Android to fire a `resumed` event — does not immediately
+  /// trigger another ad.
+  DateTime? _lastShownAt;
+  static const Duration _showCooldown = Duration(seconds: 60);
+
+  bool get _isCoolingDown {
+    if (_lastShownAt == null) return false;
+    return DateTime.now().difference(_lastShownAt!) < _showCooldown;
+  }
+
   /// Start observing app lifecycle for resume events.
   void init() {
     WidgetsBinding.instance.addObserver(this);
@@ -86,6 +98,7 @@ class GlobalAppOpenAd with WidgetsBindingObserver {
 
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
+        _lastShownAt = DateTime.now();
         debugPrint('[GlobalAppOpenAd] Ad showed.');
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
@@ -116,13 +129,20 @@ class GlobalAppOpenAd with WidgetsBindingObserver {
   }
 
   void _loadAndShow() {
+    if (_isCoolingDown) {
+      debugPrint('[GlobalAppOpenAd] Skipped — cooldown active.');
+      return;
+    }
+
     if (isReady) {
       showAdIfReady();
       return;
     }
 
     loadAd(onLoaded: () {
-      showAdIfReady();
+      // Re-check cooldown: the load may finish after the user quickly
+      // backgrounds and resumes again within the window.
+      if (!_isCoolingDown) showAdIfReady();
     });
   }
 }

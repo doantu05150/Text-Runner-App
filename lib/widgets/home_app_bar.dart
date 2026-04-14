@@ -24,6 +24,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     final t = LocaleController.instance.strings;
     return AppBar(
       elevation: 0,
+      automaticallyImplyLeading: false,
       titleSpacing: 20,
       title: Row(
         children: [

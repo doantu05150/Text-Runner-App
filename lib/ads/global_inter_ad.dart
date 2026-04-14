@@ -36,6 +36,15 @@ class GlobalInterAd {
   static Timer? _timeoutTimer;
   static bool _loadTimedOut = false;
 
+  /// Cooldown between consecutive interstitial shows.
+  static DateTime? _lastShownAt;
+  static const Duration _showCooldown = Duration(seconds: 30);
+
+  static bool get _isCoolingDown {
+    if (_lastShownAt == null) return false;
+    return DateTime.now().difference(_lastShownAt!) < _showCooldown;
+  }
+
   // Callbacks / context for the current load cycle.
   static AdPlacementCallback? _onLoaded;
   static AdLoadFailedCallback? _onLoadFailed;
@@ -178,6 +187,12 @@ class GlobalInterAd {
     AdPlacementCallback? onShow,
     AdPlacementCallback? onDismissed,
   }) {
+    if (_isCoolingDown) {
+      debugPrint('[GlobalInterAd] showAd skipped — cooldown active.');
+      (onDismissed ?? _onDismissed)?.call(_adPlacement);
+      return;
+    }
+
     final ad = _ad;
     if (ad == null) {
       debugPrint('[GlobalInterAd] showAd called but no ad is ready.');
@@ -198,6 +213,7 @@ class GlobalInterAd {
   static void _attachFullScreenCallbacks(InterstitialAd ad) {
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
+        _lastShownAt = DateTime.now();
         debugPrint('[GlobalInterAd] Ad showed full screen content.');
       },
       onAdFailedToShowFullScreenContent: (ad, err) {
