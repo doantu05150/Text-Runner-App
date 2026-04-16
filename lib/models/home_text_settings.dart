@@ -13,6 +13,7 @@ class HomeTextSettings {
   final DisplayStyle displayStyle;
   final bool blinkText;
   final double blinkSpeed;
+  final bool scrollText;
 
   const HomeTextSettings({
     required this.fontSize,
@@ -24,6 +25,7 @@ class HomeTextSettings {
     required this.displayStyle,
     required this.blinkText,
     required this.blinkSpeed,
+    this.scrollText = true,
   });
 
   HomeTextSettings copyWith({
@@ -36,6 +38,7 @@ class HomeTextSettings {
     DisplayStyle? displayStyle,
     bool? blinkText,
     double? blinkSpeed,
+    bool? scrollText,
   }) {
     return HomeTextSettings(
       fontSize: fontSize ?? this.fontSize,
@@ -47,6 +50,7 @@ class HomeTextSettings {
       displayStyle: displayStyle ?? this.displayStyle,
       blinkText: blinkText ?? this.blinkText,
       blinkSpeed: blinkSpeed ?? this.blinkSpeed,
+      scrollText: scrollText ?? this.scrollText,
     );
   }
 }

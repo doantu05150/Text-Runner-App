@@ -17,6 +17,7 @@ class RunScreen extends StatefulWidget {
   final DisplayStyle displayStyle;
   final bool blinkText;
   final double blinkSpeed;
+  final bool scrollText;
 
   const RunScreen({
     super.key,
@@ -30,6 +31,7 @@ class RunScreen extends StatefulWidget {
     this.displayStyle = DisplayStyle.normal,
     this.blinkText = false,
     this.blinkSpeed = 500.0,
+    this.scrollText = true,
   });
 
   @override
@@ -138,6 +140,8 @@ class _RunScreenState extends State<RunScreen>
   void _setupAnimation() {
     if (_screenWidth == 0 || _textWidth == 0) return;
 
+    if (!widget.scrollText) return;
+
     final distance = _screenWidth + _textWidth;
     final durationInSeconds = distance / widget.speed;
 
@@ -175,17 +179,17 @@ class _RunScreenState extends State<RunScreen>
   }
 
   Widget _buildNormalText() {
-    if (_textWidth <= 0) {
-      return Center(
-        child: Text(
-          widget.text,
-          style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
-            fontSize: widget.fontSize,
-            fontWeight: widget.fontWeight,
-            color: widget.textColor,
-          )),
-        ),
-      );
+    final textWidget = Text(
+      widget.text,
+      style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
+        fontSize: widget.fontSize,
+        fontWeight: widget.fontWeight,
+        color: widget.textColor,
+      )),
+    );
+
+    if (!widget.scrollText || _textWidth <= 0) {
+      return Center(child: textWidget);
     }
 
     return AnimatedBuilder(
@@ -197,16 +201,7 @@ class _RunScreenState extends State<RunScreen>
               left: _animation.value,
               top: 0,
               bottom: 0,
-              child: Center(
-                child: Text(
-                  widget.text,
-                  style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
-                    fontSize: widget.fontSize,
-                    fontWeight: widget.fontWeight,
-                    color: widget.textColor,
-                  )),
-                ),
-              ),
+              child: Center(child: textWidget),
             ),
           ],
         );
@@ -215,6 +210,25 @@ class _RunScreenState extends State<RunScreen>
   }
 
   Widget _buildLedText() {
+    if (!widget.scrollText) {
+      final centeredOffsetX = _screenWidth > 0 && _ledImageWidth > 0
+          ? (_screenWidth - _ledImageWidth) / 2
+          : 0.0;
+      return CustomPaint(
+        size: Size.infinite,
+        painter: LedTextPainter(
+          pixels: _ledPixels,
+          imageWidth: _ledImageWidth,
+          imageHeight: _ledImageHeight,
+          ledColor: widget.textColor,
+          backgroundColor: widget.backgroundColor,
+          offsetX: centeredOffsetX,
+          dotSize: _ledDotSize(),
+          dotSpacing: 1.3,
+        ),
+      );
+    }
+
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {

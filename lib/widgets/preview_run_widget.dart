@@ -16,6 +16,7 @@ class PreviewRunWidget extends StatefulWidget {
   final DisplayStyle displayStyle;
   final bool blinkText;
   final double blinkSpeed;
+  final bool scrollText;
 
   const PreviewRunWidget({
     super.key,
@@ -29,6 +30,7 @@ class PreviewRunWidget extends StatefulWidget {
     this.displayStyle = DisplayStyle.normal,
     this.blinkText = false,
     this.blinkSpeed = 500.0,
+    this.scrollText = true,
   });
 
   @override
@@ -76,17 +78,20 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
 
     _textWidth = textPainter.size.width;
 
-    final distance = _previewWidth + _textWidth;
-    final scaledSpeed = widget.speed * _scale;
-    final durationMs = scaledSpeed > 0
-        ? (distance / scaledSpeed * 1000).round().clamp(100, 120000)
-        : 5000;
-
     _controller.stop();
-    _controller.duration = Duration(milliseconds: durationMs);
-    _animation = Tween<double>(begin: -_textWidth, end: _previewWidth)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
-    _controller.forward(from: 0);
+
+    if (widget.scrollText) {
+      final distance = _previewWidth + _textWidth;
+      final scaledSpeed = widget.speed * _scale;
+      final durationMs = scaledSpeed > 0
+          ? (distance / scaledSpeed * 1000).round().clamp(100, 120000)
+          : 5000;
+
+      _controller.duration = Duration(milliseconds: durationMs);
+      _animation = Tween<double>(begin: -_textWidth, end: _previewWidth)
+          .animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+      _controller.forward(from: 0);
+    }
 
     if (widget.displayStyle == DisplayStyle.led) {
       _renderLedPixels(scaledFontSize);
@@ -140,7 +145,8 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
         oldWidget.fontFamily != widget.fontFamily ||
         oldWidget.fontWeight != widget.fontWeight ||
         oldWidget.speed != widget.speed ||
-        oldWidget.displayStyle != widget.displayStyle) {
+        oldWidget.displayStyle != widget.displayStyle ||
+        oldWidget.scrollText != widget.scrollText) {
       _rebuildAnimation();
     }
   }
@@ -182,48 +188,84 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
           clipBehavior: Clip.hardEdge,
           child: widget.text.isEmpty
               ? const SizedBox()
-              : _wrapWithBlink(AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, _) {
-                    final position = _animation?.value ?? -_textWidth;
+              : _wrapWithBlink(_buildContent(newWidth, previewHeight, scaledFontSize)),
+        );
+      },
+    );
+  }
 
-                    if (widget.displayStyle == DisplayStyle.led) {
-                      return CustomPaint(
-                        size: Size(newWidth, previewHeight),
-                        painter: LedTextPainter(
-                          pixels: _ledPixels,
-                          imageWidth: _ledImageWidth,
-                          imageHeight: _ledImageHeight,
-                          ledColor: widget.textColor,
-                          backgroundColor: widget.backgroundColor,
-                          offsetX: position,
-                          dotSize: 1.5,
-                          dotSpacing: 1.3,
-                        ),
-                      );
-                    }
+  Widget _buildContent(double width, double height, double scaledFontSize) {
+    if (!widget.scrollText) {
+      if (widget.displayStyle == DisplayStyle.led) {
+        final centeredOffsetX = _ledImageWidth > 0
+            ? (width - _ledImageWidth) / 2
+            : 0.0;
+        return CustomPaint(
+          size: Size(width, height),
+          painter: LedTextPainter(
+            pixels: _ledPixels,
+            imageWidth: _ledImageWidth,
+            imageHeight: _ledImageHeight,
+            ledColor: widget.textColor,
+            backgroundColor: widget.backgroundColor,
+            offsetX: centeredOffsetX,
+            dotSize: 1.5,
+            dotSpacing: 1.3,
+          ),
+        );
+      }
+      return Center(
+        child: Text(
+          widget.text,
+          style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
+            fontSize: scaledFontSize,
+            fontWeight: widget.fontWeight,
+            color: widget.textColor,
+          )),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
 
-                    return Stack(
-                      children: [
-                        Positioned(
-                          left: position,
-                          top: 0,
-                          bottom: 0,
-                          child: Center(
-                            child: Text(
-                              widget.text,
-                              style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
-                                fontSize: scaledFontSize,
-                                fontWeight: widget.fontWeight,
-                                color: widget.textColor,
-                              )),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                )),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final position = _animation?.value ?? -_textWidth;
+
+        if (widget.displayStyle == DisplayStyle.led) {
+          return CustomPaint(
+            size: Size(width, height),
+            painter: LedTextPainter(
+              pixels: _ledPixels,
+              imageWidth: _ledImageWidth,
+              imageHeight: _ledImageHeight,
+              ledColor: widget.textColor,
+              backgroundColor: widget.backgroundColor,
+              offsetX: position,
+              dotSize: 1.5,
+              dotSpacing: 1.3,
+            ),
+          );
+        }
+
+        return Stack(
+          children: [
+            Positioned(
+              left: position,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Text(
+                  widget.text,
+                  style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
+                    fontSize: scaledFontSize,
+                    fontWeight: widget.fontWeight,
+                    color: widget.textColor,
+                  )),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

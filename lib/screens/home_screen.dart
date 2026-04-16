@@ -164,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       displayStyle: _settings.displayStyle.name,
       blinkText: _settings.blinkText,
       blinkSpeed: _settings.blinkSpeed,
+      scrollText: _settings.scrollText,
       createdAt: DateTime.now(),
     );
 
@@ -212,6 +213,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         'displayStyle': _settings.displayStyle,
         'blinkText': _settings.blinkText,
         'blinkSpeed': _settings.blinkSpeed,
+        'scrollText': _settings.scrollText,
       },
     );
   }
@@ -289,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           displayStyle: _settings.displayStyle,
                           blinkText: _settings.blinkText,
                           blinkSpeed: _settings.blinkSpeed,
+                          scrollText: _settings.scrollText,
                         ),
                         const SizedBox(height: 12),
                         // Quick Themes

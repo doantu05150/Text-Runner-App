@@ -10,6 +10,7 @@ class SavedItem {
   final String displayStyle; // 'normal' or 'led'
   final bool blinkText;
   final double blinkSpeed;
+  final bool scrollText;
   final DateTime createdAt;
 
   SavedItem({
@@ -24,6 +25,7 @@ class SavedItem {
     this.displayStyle = 'normal',
     this.blinkText = false,
     this.blinkSpeed = 500.0,
+    this.scrollText = true,
     required this.createdAt,
   });
 
@@ -39,6 +41,7 @@ class SavedItem {
     'displayStyle': displayStyle,
     'blinkText': blinkText,
     'blinkSpeed': blinkSpeed,
+    'scrollText': scrollText,
     'createdAt': createdAt.toIso8601String(),
   };
 
@@ -54,6 +57,7 @@ class SavedItem {
     displayStyle: json['displayStyle'] as String? ?? 'normal',
     blinkText: json['blinkText'] as bool? ?? false,
     blinkSpeed: (json['blinkSpeed'] as num?)?.toDouble() ?? 500.0,
+    scrollText: json['scrollText'] as bool? ?? true,
     createdAt: DateTime.parse(json['createdAt']),
   );
 }

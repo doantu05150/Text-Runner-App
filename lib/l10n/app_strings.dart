@@ -58,6 +58,7 @@ class AppStrings {
   String get textLabel => _m['textLabel']!;
   String get bgLabel => _m['bgLabel']!;
   String get saveTextTooltip => _m['saveTextTooltip']!;
+  String get scrollText => _m['scrollText']!;
 
   static const Map<String, Map<String, String>> _all = {
     'en': {
@@ -89,6 +90,7 @@ class AppStrings {
       'textLabel': 'Text',
       'bgLabel': 'BG',
       'saveTextTooltip': 'Save text',
+      'scrollText': 'Scroll text',
     },
     'id': {
       'settings': 'Pengaturan',
@@ -119,6 +121,7 @@ class AppStrings {
       'textLabel': 'Teks',
       'bgLabel': 'Latar',
       'saveTextTooltip': 'Simpan teks',
+      'scrollText': 'Gulir teks',
     },
     'ja': {
       'settings': '設定',
@@ -149,6 +152,7 @@ class AppStrings {
       'textLabel': '文字',
       'bgLabel': '背景',
       'saveTextTooltip': 'テキストを保存',
+      'scrollText': 'スクロール',
     },
     'ko': {
       'settings': '설정',
@@ -179,6 +183,7 @@ class AppStrings {
       'textLabel': '글자',
       'bgLabel': '배경',
       'saveTextTooltip': '텍스트 저장',
+      'scrollText': '텍스트 스크롤',
     },
     'zh': {
       'settings': '设置',
@@ -209,6 +214,7 @@ class AppStrings {
       'textLabel': '文字',
       'bgLabel': '背景',
       'saveTextTooltip': '保存文本',
+      'scrollText': '滚动文字',
     },
     'es_MX': {
       'settings': 'Ajustes',
@@ -239,6 +245,7 @@ class AppStrings {
       'textLabel': 'Texto',
       'bgLabel': 'Fondo',
       'saveTextTooltip': 'Guardar texto',
+      'scrollText': 'Desplazar texto',
     },
     'th': {
       'settings': 'การตั้งค่า',
@@ -269,6 +276,7 @@ class AppStrings {
       'textLabel': 'ข้อความ',
       'bgLabel': 'พื้นหลัง',
       'saveTextTooltip': 'บันทึกข้อความ',
+      'scrollText': 'เลื่อนข้อความ',
     },
     'fil': {
       'settings': 'Mga Setting',
@@ -299,6 +307,7 @@ class AppStrings {
       'textLabel': 'Teksto',
       'bgLabel': 'BG',
       'saveTextTooltip': 'I-save ang teksto',
+      'scrollText': 'Mag-scroll ng teksto',
     },
     'hi': {
       'settings': 'सेटिंग्स',
@@ -329,6 +338,7 @@ class AppStrings {
       'textLabel': 'टेक्स्ट',
       'bgLabel': 'पृष्ठभूमि',
       'saveTextTooltip': 'टेक्स्ट सहेजें',
+      'scrollText': 'स्क्रॉल टेक्स्ट',
     },
     'vi': {
       'settings': 'Cài đặt',
@@ -359,6 +369,7 @@ class AppStrings {
       'textLabel': 'Chữ',
       'bgLabel': 'Nền',
       'saveTextTooltip': 'Lưu văn bản',
+      'scrollText': 'Cuộn chữ',
     },
     'es': {
       'settings': 'Ajustes',
@@ -389,6 +400,7 @@ class AppStrings {
       'textLabel': 'Texto',
       'bgLabel': 'Fondo',
       'saveTextTooltip': 'Guardar texto',
+      'scrollText': 'Desplazar texto',
     },
     'fr': {
       'settings': 'Paramètres',
@@ -419,6 +431,7 @@ class AppStrings {
       'textLabel': 'Texte',
       'bgLabel': 'Fond',
       'saveTextTooltip': 'Enregistrer le texte',
+      'scrollText': 'Défilement du texte',
     },
     'ru': {
       'settings': 'Настройки',
@@ -449,6 +462,7 @@ class AppStrings {
       'textLabel': 'Текст',
       'bgLabel': 'Фон',
       'saveTextTooltip': 'Сохранить текст',
+      'scrollText': 'Прокрутка текста',
     },
   };
 }

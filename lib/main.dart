@@ -80,6 +80,7 @@ class MyApp extends StatelessWidget {
               displayStyle: args['displayStyle'] as DisplayStyle? ?? DisplayStyle.normal,
               blinkText: args['blinkText'] as bool? ?? false,
               blinkSpeed: args['blinkSpeed'] as double? ?? 500.0,
+              scrollText: args['scrollText'] as bool? ?? true,
             ),
           );
         }

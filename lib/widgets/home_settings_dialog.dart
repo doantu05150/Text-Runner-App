@@ -68,6 +68,7 @@ class _HomeSettingsDialogState extends State<_HomeSettingsDialog> {
   late DisplayStyle _displayStyle = widget.initial.displayStyle;
   late bool _blinkText = widget.initial.blinkText;
   late double _blinkSpeed = widget.initial.blinkSpeed;
+  late bool _scrollText = widget.initial.scrollText;
 
   @override
   Widget build(BuildContext context) {
@@ -233,52 +234,58 @@ class _HomeSettingsDialogState extends State<_HomeSettingsDialog> {
               child: _colorSwatch(_backgroundColor, () => _pickColor(isTextColor: false)),
             ),
             const SizedBox(height: 8),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.flare_rounded, size: 20, color: AppColors.textSecondary),
-                const SizedBox(width: 12),
-                Text(t.blink,
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                SizedBox(
-                  height: 32,
-                  child: FittedBox(
-                    child: Switch(
-                      value: _blinkText,
-                      activeThumbColor: AppColors.primary,
-                      onChanged: (value) => setState(() => _blinkText = value),
-                    ),
-                  ),
+                _toggleRow(
+                  icon: Icons.flare_rounded,
+                  label: t.blink,
+                  value: _blinkText,
+                  onChanged: (v) => setState(() => _blinkText = v),
                 ),
                 if (_blinkText) ...[
-                  Expanded(
-                    child: SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: AppColors.primary,
-                        inactiveTrackColor: AppColors.border,
-                        thumbColor: AppColors.primary,
-                        overlayColor: AppColors.primarySoft,
-                        trackHeight: 3,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const SizedBox(width: 32),
+                      Expanded(
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: AppColors.primary,
+                            inactiveTrackColor: AppColors.border,
+                            thumbColor: AppColors.primary,
+                            overlayColor: AppColors.primarySoft,
+                            trackHeight: 3,
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                          ),
+                          child: Slider(
+                            value: _blinkSpeed,
+                            min: 100,
+                            max: 1000,
+                            divisions: 18,
+                            onChanged: (v) => setState(() => _blinkSpeed = v),
+                          ),
+                        ),
                       ),
-                      child: Slider(
-                        value: _blinkSpeed,
-                        min: 100,
-                        max: 1000,
-                        divisions: 18,
-                        onChanged: (value) => setState(() => _blinkSpeed = value),
+                      SizedBox(
+                        width: 40,
+                        child: Text(
+                          '${_blinkSpeed.round()}',
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                          textAlign: TextAlign.right,
+                        ),
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 40,
-                    child: Text(
-                      '${_blinkSpeed.round()}',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                      textAlign: TextAlign.right,
-                    ),
+                    ],
                   ),
                 ],
               ],
+            ),
+            const SizedBox(height: 8),
+            _toggleRow(
+              icon: Icons.animation_rounded,
+              label: t.scrollText,
+              value: _scrollText,
+              onChanged: (v) => setState(() => _scrollText = v),
             ),
           ],
         ),
@@ -305,10 +312,41 @@ class _HomeSettingsDialogState extends State<_HomeSettingsDialog> {
                 displayStyle: _displayStyle,
                 blinkText: _blinkText,
                 blinkSpeed: _blinkSpeed,
+                scrollText: _scrollText,
               ),
             );
           },
           child: Text(t.save),
+        ),
+      ],
+    );
+  }
+
+  Widget _toggleRow({
+    required IconData icon,
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: value ? AppColors.primary : AppColors.textSecondary),
+        const SizedBox(width: 12),
+        SizedBox(
+          width: 80,
+          child: Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        ),
+        const Spacer(),
+        SizedBox(
+          height: 32,
+          child: FittedBox(
+            child: Switch(
+              value: value,
+              activeTrackColor: AppColors.primary,
+              activeThumbColor: AppColors.isDark ? Colors.black : Colors.white,
+              onChanged: onChanged,
+            ),
+          ),
         ),
       ],
     );

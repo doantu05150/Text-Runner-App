@@ -152,6 +152,9 @@ class _SavedScreenState extends State<SavedScreen> {
                             'backgroundColor': bgColor,
                             'speed': item.speed,
                             'displayStyle': DisplayStyle.values.byName(item.displayStyle),
+                            'blinkText': item.blinkText,
+                            'blinkSpeed': item.blinkSpeed,
+                            'scrollText': item.scrollText,
                           },
                         );
                       },
