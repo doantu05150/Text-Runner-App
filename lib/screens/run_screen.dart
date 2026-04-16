@@ -201,6 +201,7 @@ class _RunScreenState extends State<RunScreen>
               left: _animation.value,
               top: 0,
               bottom: 0,
+              width: _textWidth,
               child: Center(child: textWidget),
             ),
           ],

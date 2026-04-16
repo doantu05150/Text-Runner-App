@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   // Text settings (font, colors, speed, blink, …).
   HomeTextSettings _settings = HomeTextSettings(
-    fontSize: 80,
+    fontSize: 76,
     fontFamily: 'Orbitron',
     fontWeight: FontWeight.w700,
     textColor: Colors.pink,

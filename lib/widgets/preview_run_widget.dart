@@ -254,6 +254,7 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
               left: position,
               top: 0,
               bottom: 0,
+              width: _textWidth,
               child: Center(
                 child: Text(
                   widget.text,
