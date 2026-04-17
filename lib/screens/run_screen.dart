@@ -179,18 +179,25 @@ class _RunScreenState extends State<RunScreen>
   }
 
   Widget _buildNormalText() {
-    final textWidget = Text(
-      widget.text,
-      style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
-        fontSize: widget.fontSize,
-        fontWeight: widget.fontWeight,
-        color: widget.textColor,
-      )),
-    );
+    final style = googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
+      fontSize: widget.fontSize,
+      fontWeight: widget.fontWeight,
+      color: widget.textColor,
+    ));
 
     if (!widget.scrollText || _textWidth <= 0) {
-      return Center(child: textWidget);
+      return Center(child: Text(widget.text, style: style, textAlign: TextAlign.center));
     }
+
+    // softWrap: false prevents width-constraint-based wrapping caused by
+    // font metric mismatch between TextPainter (measures before font loads)
+    // and the actual rendered Text widget. Explicit \n still breaks lines.
+    final scrollingText = Text(
+      widget.text,
+      softWrap: false,
+      overflow: TextOverflow.visible,
+      style: style,
+    );
 
     return AnimatedBuilder(
       animation: _animation,
@@ -202,7 +209,7 @@ class _RunScreenState extends State<RunScreen>
               top: 0,
               bottom: 0,
               width: _textWidth,
-              child: Center(child: textWidget),
+              child: Center(child: scrollingText),
             ),
           ],
         );

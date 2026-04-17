@@ -222,7 +222,6 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
             fontWeight: widget.fontWeight,
             color: widget.textColor,
           )),
-          textAlign: TextAlign.center,
         ),
       );
     }
@@ -248,6 +247,8 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
           );
         }
 
+        // softWrap: false mirrors run_screen.dart — prevents width-constraint
+        // wrapping caused by font metric mismatch before the Google Font loads.
         return Stack(
           children: [
             Positioned(
@@ -258,6 +259,8 @@ class _PreviewRunWidgetState extends State<PreviewRunWidget>
               child: Center(
                 child: Text(
                   widget.text,
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
                   style: googleFontStyle(widget.fontFamily, baseStyle: TextStyle(
                     fontSize: scaledFontSize,
                     fontWeight: widget.fontWeight,
