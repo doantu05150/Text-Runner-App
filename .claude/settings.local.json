@@ -4,7 +4,8 @@
       "Bash(flutter analyze:*)",
       "Bash(flutter pub:*)",
       "WebSearch",
-      "WebFetch(domain:developers.google.com)"
+      "WebFetch(domain:developers.google.com)",
+      "Bash(dart run *)"
     ]
   }
 }
