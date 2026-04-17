@@ -21,35 +21,45 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
-  static const String _savedInterAdUnitId = AdIds.homeToSavedInter;
+  static const String _interAdUnitId = AdIds.homeToSavedInter;
+
+  static const _placements = {
+    (from: 0, to: 1): 'home_to_saved',
+    (from: 2, to: 0): 'settings_to_home',
+    (from: 2, to: 1): 'settings_to_saved',
+  };
 
   @override
   void initState() {
     super.initState();
-    _preloadSavedInterAd();
+    _preloadInterAd();
   }
 
-  void _preloadSavedInterAd() {
+  void _preloadInterAd({String placement = 'tab_inter'}) {
     GlobalInterAd.loadAd(
-      adUnitId: _savedInterAdUnitId,
-      adPlacement: 'home_to_saved',
+      adUnitId: _interAdUnitId,
+      adPlacement: placement,
     );
   }
 
   void _onTabTapped(int index) {
     if (index == _currentIndex) return;
 
-    if (index == 1 && _currentIndex == 0) {
-      void goToSaved(String? _) {
+    final from = _currentIndex;
+    final placement = _placements[(from: from, to: index)];
+    final shouldShowAd = placement != null;
+
+    if (shouldShowAd) {
+      void navigate(String? _) {
         if (!mounted) return;
-        setState(() => _currentIndex = 1);
-        _preloadSavedInterAd();
+        setState(() => _currentIndex = index);
+        _preloadInterAd(placement: placement);
       }
 
       if (GlobalInterAd.isReady) {
-        GlobalInterAd.showAd(onDismissed: goToSaved);
+        GlobalInterAd.showAd(onDismissed: navigate);
       } else {
-        goToSaved(null);
+        navigate(null);
       }
     } else {
       setState(() => _currentIndex = index);
