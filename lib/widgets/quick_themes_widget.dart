@@ -8,11 +8,13 @@ class QuickTheme {
     required this.label,
     required this.backgroundColor,
     required this.textColor,
+    this.blinkText = false,
   });
 
   final String label;
   final Color backgroundColor;
   final Color textColor;
+  final bool blinkText;
 }
 
 /// 4-column grid of quick LED color presets.
@@ -38,12 +40,12 @@ class QuickThemesGrid extends StatelessWidget {
 
   static const List<QuickTheme> defaultThemes = [
     QuickTheme(
-      label: 'Textify',
+      label: 'Glow',
       backgroundColor: Colors.black,
       textColor: Colors.pink,
     ),
     QuickTheme(
-      label: 'Glow',
+      label: 'Textify',
       backgroundColor: Colors.white,
       textColor: Colors.pink,
     ),
@@ -51,11 +53,13 @@ class QuickThemesGrid extends StatelessWidget {
       label: 'LED',
       backgroundColor: Colors.red,
       textColor: Colors.black,
+      blinkText: true,
     ),
     QuickTheme(
       label: 'App',
       backgroundColor: Colors.greenAccent,
       textColor: Colors.black,
+      blinkText: true,
     ),
   ];
 

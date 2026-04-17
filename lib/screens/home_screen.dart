@@ -271,6 +271,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 backgroundColor: theme.backgroundColor,
                                 textColor: theme.textColor,
                                 displayStyle: DisplayStyle.led,
+                                blinkText: theme.blinkText,
                               );
                             });
                           },
