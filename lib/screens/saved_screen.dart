@@ -82,10 +82,8 @@ class _SavedScreenState extends State<SavedScreen> {
       backgroundColor: AppColors.bgMain,
       appBar: AppBar(
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textSecondary),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
+        titleSpacing: 20,
         title: Text(
           t.saved,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(

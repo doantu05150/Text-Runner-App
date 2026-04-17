@@ -14,7 +14,6 @@ import '../models/home_text_settings.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../ads/global_inter_ad.dart';
 import '../ads/home_bottom_native_ad.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -60,24 +59,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String _previewText = 'Hello, GlowTextify!';
   Timer? _debounceTimer;
 
-  static const String _savedInterAdUnitId =
-      'ca-app-pub-2729665939843867/6473280323';
-
-  void _preloadSavedInterAd() {
-    GlobalInterAd.loadAd(
-      adUnitId: _savedInterAdUnitId,
-      adPlacement: 'home_to_saved',
-    );
-  }
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _preloadSavedInterAd();
-    // Warm the native ad cache so the home bottom ad — and the same
-    // placement reused on the settings screen — render with no
-    // visible load latency.
     HomeBottomNativeAd.preload();
     _controller.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
@@ -225,22 +210,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _onSavedPressed() {
-    void goToSaved(String? _) {
-      if (!mounted) return;
-      Navigator.pushNamed(context, '/saved');
-      _preloadSavedInterAd();
-    }
-
-    if (GlobalInterAd.isReady) {
-      GlobalInterAd.showAd(onDismissed: goToSaved);
-    } else {
-      // Not cached yet — just navigate and let the next visit
-      // benefit from the preload that's already in flight.
-      goToSaved(null);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String>(
@@ -249,11 +218,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         final t = LocaleController.instance.strings;
         return Scaffold(
           backgroundColor: AppColors.bgMain,
-          appBar: HomeAppBar(
-            onSavedPressed: _onSavedPressed,
-            onSettingsPressed: () =>
-                Navigator.pushNamed(context, '/settings'),
-          ),
+          appBar: const HomeAppBar(),
           body: LayoutBuilder(builder: (context, constraints) {
             final bottomInset = MediaQuery.of(context).padding.bottom;
             final adHeight = _keyboardVisible

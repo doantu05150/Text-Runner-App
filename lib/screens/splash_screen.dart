@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../ads/ad_ids.dart';
 import '../ads/global_app_open_ad.dart';
 import '../ads/global_native_ad.dart';
 import '../ads/native_ad_cache.dart';
@@ -33,12 +34,6 @@ class _SplashScreenState extends State<SplashScreen>
   static const Duration _minDuration = Duration(seconds: 5);
   static const Duration _minAdVisible = Duration(seconds: 2);
 
-  // Google test native ad unit id — matches HomeBottomNativeAd so the
-  // same platform NativeAdFactory ('homeBottomNativeAd') is reused.
-  static const String _nativeAdUnitId =
-      'ca-app-pub-2729665939843867/1814803830';
-  static const String _nativeFactoryId = 'homeBottomNativeAd';
-
   static const String _onb1AdKey = 'onb_native_1';
   static const String _firstLaunchDoneKey = 'app.first_launch_done';
 
@@ -62,8 +57,8 @@ class _SplashScreenState extends State<SplashScreen>
     // the user is new. One-shot — don't auto-refill.
     NativeAdCache.preload(
       key: _onb1AdKey,
-      adUnitId: _nativeAdUnitId,
-      factoryId: _nativeFactoryId,
+      adUnitId: AdIds.onboardingNative,
+      factoryId: AdIds.nativeFactoryId,
     );
   }
 
@@ -166,8 +161,8 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 20),
             GlobalNativeAd(
-              adUnitId: _nativeAdUnitId,
-              factoryId: _nativeFactoryId,
+              adUnitId: AdIds.onboardingNative,
+              factoryId: AdIds.nativeFactoryId,
               adPlacement: 'splash_native',
               onLoaded: _onAdLoaded,
               onLoadFailed: _onAdFailed,

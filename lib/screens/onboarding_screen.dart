@@ -4,14 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../ads/ad_ids.dart';
 import '../ads/global_native_ad.dart';
 import '../ads/native_ad_cache.dart';
 import '../theme/app_theme.dart';
-
-// Shared ad constants. We reuse the home-bottom native factory since it
-// is already registered on the platform side.
-const String _nativeAdUnitId = 'ca-app-pub-2729665939843867/1814803830';
-const String _nativeFactoryId = 'homeBottomNativeAd';
 const String _firstLaunchDoneKey = 'app.first_launch_done';
 
 /// Screen 1 of the first-run tour: "easy to use".
@@ -137,8 +133,8 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
     if (nextKey != null) {
       NativeAdCache.preload(
         key: nextKey,
-        adUnitId: _nativeAdUnitId,
-        factoryId: _nativeFactoryId,
+        adUnitId: AdIds.onboardingNative,
+        factoryId: AdIds.nativeFactoryId,
       );
     }
 
@@ -247,8 +243,8 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
             SizedBox(
               child: (_mountAd && !_adHidden)
                   ? GlobalNativeAd(
-                      adUnitId: _nativeAdUnitId,
-                      factoryId: _nativeFactoryId,
+                      adUnitId: AdIds.onboardingNative,
+                      factoryId: AdIds.nativeFactoryId,
                       adPlacement: widget.myCacheKey,
                       useCache: true,
                       cacheKey: widget.myCacheKey,

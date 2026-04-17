@@ -23,10 +23,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: AppColors.bgMain,
       appBar: AppBar(
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textSecondary),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
+        titleSpacing: 20,
         title: Text(
           t.settings,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(

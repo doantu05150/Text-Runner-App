@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_shell.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/run_screen.dart';
-import 'screens/saved_screen.dart';
-import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'models/display_style.dart';
 import 'ads/global_app_open_ad.dart';
@@ -61,11 +59,7 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(
               builder: (context) => const OnboardingPage3());
         } else if (settings.name == '/') {
-          return MaterialPageRoute(builder: (context) => const HomeScreen());
-        } else if (settings.name == '/saved') {
-          return MaterialPageRoute(builder: (context) => const SavedScreen());
-        } else if (settings.name == '/settings') {
-          return MaterialPageRoute(builder: (context) => const SettingsScreen());
+          return MaterialPageRoute(builder: (context) => const MainShell());
         } else if (settings.name == '/run') {
           final args = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(

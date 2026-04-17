@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_ids.dart';
 import 'global_inter_ad.dart' show AdPlacementCallback;
 import 'global_native_ad.dart';
 import 'native_ad_cache.dart';
@@ -39,8 +40,8 @@ class HomeBottomNativeAd extends StatelessWidget {
   final AdPlacementCallback? onLoaded;
 
   // Google test native ad unit id.
-  static const String _adUnitId = 'ca-app-pub-2729665939843867/8294237260';
-  static const String _factoryId = 'homeBottomNativeAd';
+  static const String _adUnitId = AdIds.homeBottomNative;
+  static const String _factoryId = AdIds.nativeFactoryId;
 
   // Internal element heights (must match the native factory layout).
   static const double _adInfoHeight = 56;

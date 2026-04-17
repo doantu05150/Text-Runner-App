@@ -59,9 +59,11 @@ class AppStrings {
   String get bgLabel => _m['bgLabel']!;
   String get saveTextTooltip => _m['saveTextTooltip']!;
   String get scrollText => _m['scrollText']!;
+  String get home => _m['home']!;
 
   static const Map<String, Map<String, String>> _all = {
     'en': {
+      'home': 'Home',
       'settings': 'Settings',
       'saved': 'Saved',
       'language': 'Language',
@@ -93,6 +95,7 @@ class AppStrings {
       'scrollText': 'Scroll text',
     },
     'id': {
+      'home': 'Beranda',
       'settings': 'Pengaturan',
       'saved': 'Tersimpan',
       'language': 'Bahasa',
@@ -124,6 +127,7 @@ class AppStrings {
       'scrollText': 'Gulir teks',
     },
     'ja': {
+      'home': 'ホーム',
       'settings': '設定',
       'saved': '保存済み',
       'language': '言語',
@@ -155,6 +159,7 @@ class AppStrings {
       'scrollText': 'スクロール',
     },
     'ko': {
+      'home': '홈',
       'settings': '설정',
       'saved': '저장됨',
       'language': '언어',
@@ -186,6 +191,7 @@ class AppStrings {
       'scrollText': '텍스트 스크롤',
     },
     'zh': {
+      'home': '主页',
       'settings': '设置',
       'saved': '已保存',
       'language': '语言',
@@ -217,6 +223,7 @@ class AppStrings {
       'scrollText': '滚动文字',
     },
     'es_MX': {
+      'home': 'Inicio',
       'settings': 'Ajustes',
       'saved': 'Guardados',
       'language': 'Idioma',
@@ -248,6 +255,7 @@ class AppStrings {
       'scrollText': 'Desplazar texto',
     },
     'th': {
+      'home': 'หน้าหลัก',
       'settings': 'การตั้งค่า',
       'saved': 'บันทึกแล้ว',
       'language': 'ภาษา',
@@ -279,6 +287,7 @@ class AppStrings {
       'scrollText': 'เลื่อนข้อความ',
     },
     'fil': {
+      'home': 'Home',
       'settings': 'Mga Setting',
       'saved': 'Naka-save',
       'language': 'Wika',
@@ -310,6 +319,7 @@ class AppStrings {
       'scrollText': 'Mag-scroll ng teksto',
     },
     'hi': {
+      'home': 'होम',
       'settings': 'सेटिंग्स',
       'saved': 'सहेजे गए',
       'language': 'भाषा',
@@ -341,6 +351,7 @@ class AppStrings {
       'scrollText': 'स्क्रॉल टेक्स्ट',
     },
     'vi': {
+      'home': 'Trang chủ',
       'settings': 'Cài đặt',
       'saved': 'Đã lưu',
       'language': 'Ngôn ngữ',
@@ -372,6 +383,7 @@ class AppStrings {
       'scrollText': 'Cuộn chữ',
     },
     'es': {
+      'home': 'Inicio',
       'settings': 'Ajustes',
       'saved': 'Guardados',
       'language': 'Idioma',
@@ -403,6 +415,7 @@ class AppStrings {
       'scrollText': 'Desplazar texto',
     },
     'fr': {
+      'home': 'Accueil',
       'settings': 'Paramètres',
       'saved': 'Enregistrés',
       'language': 'Langue',
@@ -434,6 +447,7 @@ class AppStrings {
       'scrollText': 'Défilement du texte',
     },
     'ru': {
+      'home': 'Главная',
       'settings': 'Настройки',
       'saved': 'Сохранённые',
       'language': 'Язык',

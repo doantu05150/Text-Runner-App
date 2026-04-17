@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_ids.dart';
 
 /// Global singleton for App Open ads.
 ///
@@ -14,7 +15,7 @@ class GlobalAppOpenAd with WidgetsBindingObserver {
   GlobalAppOpenAd._();
   static final GlobalAppOpenAd instance = GlobalAppOpenAd._();
 
-  static const String _adUnitId = 'ca-app-pub-2729665939843867/2526296452';
+  static const String _adUnitId = AdIds.appOpen;
 
   AppOpenAd? _ad;
   bool _isLoading = false;
