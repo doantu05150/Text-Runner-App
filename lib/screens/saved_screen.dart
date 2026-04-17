@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../ads/ad_ids.dart';
+import '../ads/global_banner_ad.dart';
 import '../l10n/app_strings.dart';
 import '../services/locale_controller.dart';
 import '../theme/app_theme.dart';
@@ -127,10 +129,23 @@ class _SavedScreenState extends State<SavedScreen> {
                 )
               : ListView.separated(
                   padding: const EdgeInsets.all(20),
-                  itemCount: _savedItems.length,
+                  // +1 slot for the banner ad injected at index 1
+                  itemCount: _savedItems.length + 1,
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final item = _savedItems[index];
+                    // Banner ad at position 2 (index 1)
+                    if (index == 1) {
+                      return Center(
+                        child: GlobalBannerAd(
+                          adUnitId: AdIds.savedListBanner,
+                          adPlacement: 'saved_list',
+                        ),
+                      );
+                    }
+                    // Items before ad: index 0 → item 0
+                    // Items after ad: index 2+ → item index-1
+                    final itemIndex = index > 1 ? index - 1 : index;
+                    final item = _savedItems[itemIndex];
                     final textColor = Color(item.textColorValue);
                     final bgColor = Color(item.backgroundColorValue);
                     return AppCard(
@@ -159,7 +174,6 @@ class _SavedScreenState extends State<SavedScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Text preview + delete
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -177,7 +191,7 @@ class _SavedScreenState extends State<SavedScreen> {
                               ),
                               const SizedBox(width: 8),
                               GestureDetector(
-                                onTap: () => _removeItem(index),
+                                onTap: () => _removeItem(itemIndex),
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 4),
                                   child: Icon(
@@ -190,7 +204,6 @@ class _SavedScreenState extends State<SavedScreen> {
                             ],
                           ),
                           const SizedBox(height: 10),
-                          // Settings info row
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
@@ -212,7 +225,6 @@ class _SavedScreenState extends State<SavedScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          // Date
                           Text(
                             _formatDate(item.createdAt),
                             style: TextStyle(
