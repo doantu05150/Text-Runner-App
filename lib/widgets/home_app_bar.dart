@@ -9,7 +9,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +26,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  gradient: _accentGradient,
                 ),
                 padding: const EdgeInsets.all(1.5),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.5),
                   child: Image.asset(
-                    'assets/images/logo.png',
+                    'assets/images/logo-trans.png',
                     height: 36,
                     width: 36,
                     fit: BoxFit.cover,
@@ -61,10 +60,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ],
           ),
-        ),
-        Container(
-          height: 1,
-          decoration: const BoxDecoration(gradient: _accentGradient),
         ),
       ],
     );

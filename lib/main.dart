@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/main_shell.dart';
 import 'screens/onboarding_screen.dart';
@@ -14,7 +15,8 @@ import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
   await ThemeController.instance.load();
   await LocaleController.instance.load();
   unawaited(MobileAds.instance.initialize());
@@ -29,6 +31,7 @@ void main() async {
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarIconBrightness: Brightness.light,
   ));
+  FlutterNativeSplash.remove();
   runApp(const MyApp());
 }
 

@@ -116,18 +116,10 @@ class _AppBottomNav extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgCard,
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: 0.5),
-        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Gradient accent line at top
-          Container(
-            height: 1,
-            decoration: const BoxDecoration(gradient: _accentGradient),
-          ),
           Padding(
             padding: EdgeInsets.only(
               top: 8,
