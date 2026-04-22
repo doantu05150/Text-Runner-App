@@ -14,18 +14,21 @@ class SavedScreen extends StatefulWidget {
   const SavedScreen({super.key});
 
   @override
-  State<SavedScreen> createState() => _SavedScreenState();
+  State<SavedScreen> createState() => SavedScreenState();
 }
 
-class _SavedScreenState extends State<SavedScreen> {
+class SavedScreenState extends State<SavedScreen> {
   List<SavedItem> _savedItems = [];
   bool _isLoading = true;
+  bool _adReady = true;
 
   @override
   void initState() {
     super.initState();
     _loadSavedItems();
   }
+
+  void reload() => _loadSavedItems();
 
   Future<void> _loadSavedItems() async {
     final prefs = await SharedPreferences.getInstance();
@@ -129,22 +132,21 @@ class _SavedScreenState extends State<SavedScreen> {
                 )
               : ListView.separated(
                   padding: const EdgeInsets.all(20),
-                  // +1 slot for the banner ad injected at index 1
-                  itemCount: _savedItems.length + 1,
+                  itemCount: _savedItems.length + (_adReady ? 1 : 0),
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    // Banner ad at position 2 (index 1)
-                    if (index == 1) {
+                    if (_adReady && index == 1) {
                       return Center(
                         child: GlobalBannerAd(
                           adUnitId: AdIds.savedListBanner,
                           adPlacement: 'saved_list',
+                          onAdReady: (ready) {
+                            if (!ready && mounted) setState(() => _adReady = false);
+                          },
                         ),
                       );
                     }
-                    // Items before ad: index 0 → item 0
-                    // Items after ad: index 2+ → item index-1
-                    final itemIndex = index > 1 ? index - 1 : index;
+                    final itemIndex = (_adReady && index > 1) ? index - 1 : index;
                     final item = _savedItems[itemIndex];
                     final textColor = Color(item.textColorValue);
                     final bgColor = Color(item.backgroundColorValue);

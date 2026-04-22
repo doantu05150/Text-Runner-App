@@ -20,6 +20,7 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  final GlobalKey<SavedScreenState> _savedKey = GlobalKey();
 
   static const String _interAdUnitId = AdIds.homeToSavedInter;
 
@@ -53,6 +54,7 @@ class _MainShellState extends State<MainShell> {
       void navigate(String? _) {
         if (!mounted) return;
         setState(() => _currentIndex = index);
+        if (index == 1) _savedKey.currentState?.reload();
         _preloadInterAd(placement: placement);
       }
 
@@ -63,6 +65,7 @@ class _MainShellState extends State<MainShell> {
       }
     } else {
       setState(() => _currentIndex = index);
+      if (index == 1) _savedKey.currentState?.reload();
     }
   }
 
@@ -76,10 +79,10 @@ class _MainShellState extends State<MainShell> {
           backgroundColor: AppColors.bgMain,
           body: IndexedStack(
             index: _currentIndex,
-            children: const [
-              HomeScreen(),
-              SavedScreen(),
-              SettingsScreen(),
+            children: [
+              const HomeScreen(),
+              SavedScreen(key: _savedKey),
+              const SettingsScreen(),
             ],
           ),
           bottomNavigationBar: _AppBottomNav(

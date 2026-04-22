@@ -11,11 +11,13 @@ class GlobalBannerAd extends StatefulWidget {
     required this.adUnitId,
     this.size = AdSize.banner,
     this.adPlacement,
+    this.onAdReady,
   });
 
   final String adUnitId;
   final AdSize size;
   final String? adPlacement;
+  final ValueChanged<bool>? onAdReady;
 
   @override
   State<GlobalBannerAd> createState() => _GlobalBannerAdState();
@@ -43,12 +45,14 @@ class _GlobalBannerAdState extends State<GlobalBannerAd> {
             return;
           }
           setState(() => _bannerAd = ad as BannerAd);
+          widget.onAdReady?.call(true);
         },
         onAdFailedToLoad: (Ad ad, LoadAdError error) {
           debugPrint('[GlobalBannerAd] Failed: $error');
           ad.dispose();
           if (!mounted) return;
           setState(() => _failed = true);
+          widget.onAdReady?.call(false);
         },
       ),
     );
