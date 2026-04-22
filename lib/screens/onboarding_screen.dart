@@ -77,15 +77,6 @@ class OnboardingPage3 extends StatelessWidget {
   }
 }
 
-/// Shared layout + ad-gating logic for an onboarding page.
-///
-/// Behavior:
-///   * On mount, preloads the NEXT page's native ad into [NativeAdCache].
-///   * The current page's ad is shown only after a 1.5s delay.
-///   * The Next / Start button starts disabled. It enables when either:
-///       - the ad has been visible for ≥500ms, or
-///       - 5s have passed since mount without the ad loading, in which
-///         case the ad slot is hidden and the button becomes enabled.
 class _OnboardingScaffold extends StatefulWidget {
   const _OnboardingScaffold({
     required this.icon,
@@ -141,13 +132,8 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
     _delayTimer = Timer(_showDelay, () {
       if (!mounted) return;
       setState(() => _mountAd = true);
-      // If the cache hit happened before the delay (unlikely since the
-      // GlobalNativeAd only mounts now, but safe), kick the visible
-      // timer once it reports loaded.
     });
 
-    // Fallback: if the ad isn't loaded within 5s of mount, give up on
-    // it — hide the slot and enable Next so the user isn't stuck.
     _timeoutTimer = Timer(_loadTimeout, () {
       if (!mounted || _adLoaded) return;
       setState(() {
@@ -169,8 +155,6 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
     if (!mounted || _adLoaded) return;
     _adLoaded = true;
     _timeoutTimer?.cancel();
-    // The ad widget only mounts after the 1.5s delay, so by the time
-    // onLoaded fires the ad is already on-screen.
     _startMinVisibleTimer();
   }
 

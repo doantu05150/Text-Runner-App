@@ -19,6 +19,13 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await ThemeController.instance.load();
   await LocaleController.instance.load();
+  MobileAds.instance.updateRequestConfiguration(
+    RequestConfiguration(
+      maxAdContentRating: MaxAdContentRating.t,
+      tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
+      tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
+    ),
+  );
   unawaited(MobileAds.instance.initialize());
   GlobalAppOpenAd.instance.init();
   SystemChrome.setPreferredOrientations([
