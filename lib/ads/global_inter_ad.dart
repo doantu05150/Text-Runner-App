@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_cooldown.dart';
 
 typedef AdPlacementCallback = void Function(String? adPlacement);
 typedef AdLoadFailedCallback = void Function(
@@ -203,10 +204,35 @@ class GlobalInterAd {
     // Consume the cached ad — interstitials are one-shot.
     _ad = null;
 
-    if (onDismissed != null) _onDismissed = onDismissed;
+    // Capture callbacks into locals so they can't be overwritten by a
+    // subsequent loadAd call that might happen while this ad is showing.
+    final effectiveDismissed = onDismissed ?? _onDismissed;
+    final effectiveShow = onShow ?? _onShow;
+    final placement = _adPlacement;
 
-    (onShow ?? _onShow)?.call(_adPlacement);
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) {
+        _lastShownAt = DateTime.now();
+        AdCooldown.recordShown();
+        debugPrint('[GlobalInterAd] Ad showed full screen content.');
+      },
+      onAdFailedToShowFullScreenContent: (ad, err) {
+        debugPrint('[GlobalInterAd] Failed to show full screen: $err');
+        ad.dispose();
+        effectiveDismissed?.call(placement);
+        _clearCycle();
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        debugPrint('[GlobalInterAd] Ad dismissed.');
+        ad.dispose();
+        effectiveDismissed?.call(placement);
+        _clearCycle();
+      },
+      onAdImpression: (_) => _onImpression?.call(placement),
+      onAdClicked: (_) => _onClicked?.call(placement),
+    );
 
+    effectiveShow?.call(placement);
     ad.show();
   }
 
@@ -214,6 +240,7 @@ class GlobalInterAd {
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
         _lastShownAt = DateTime.now();
+        AdCooldown.recordShown();
         debugPrint('[GlobalInterAd] Ad showed full screen content.');
       },
       onAdFailedToShowFullScreenContent: (ad, err) {
