@@ -5,6 +5,7 @@ class AdIds {
   static const String homeBottomNative = 'ca-app-pub-2729665939843867/8294237260';
   static const String onboardingNative = 'ca-app-pub-2729665939843867/1814803830';
   static const String homeToSavedInter = 'ca-app-pub-2729665939843867/6473280323';
+  static const String splashInter = 'ca-app-pub-2729665939843867/6620478738';
   static const String savedListBanner = 'ca-app-pub-2729665939843867/7619820978';
 
   static const String nativeFactoryId = 'homeBottomNativeAd';

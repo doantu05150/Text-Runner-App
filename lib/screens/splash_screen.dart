@@ -5,7 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ads/ad_ids.dart';
-import '../ads/global_app_open_ad.dart';
+import '../ads/global_inter_ad.dart';
 import '../ads/global_native_ad.dart';
 import '../ads/native_ad_cache.dart';
 import '../theme/app_theme.dart';
@@ -50,8 +50,11 @@ class _SplashScreenState extends State<SplashScreen>
       })
       ..forward();
 
-    // Preload the app open ad so it's ready when the splash finishes.
-    GlobalAppOpenAd.instance.loadAd();
+    // Preload the splash interstitial so it's ready when the splash finishes.
+    GlobalInterAd.loadAd(
+      adUnitId: AdIds.splashInter,
+      adPlacement: 'splash_inter',
+    );
 
     // Warm the cache for onboarding screen 1 so it renders instantly if
     // the user is new. One-shot — don't auto-refill.
@@ -93,17 +96,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     final route = seenOnboarding ? '/' : '/onboarding/1';
 
-    // Show the app open ad before navigating. If no ad is ready, navigate
-    // immediately.
-    final shown = GlobalAppOpenAd.instance.showAdIfReady(
-      onDismissed: () {
+    // Show the splash interstitial before navigating. showAd always invokes
+    // onDismissed (immediately if no ad is ready / cooling down), so the
+    // navigation happens regardless.
+    GlobalInterAd.showAd(
+      onDismissed: (_) {
         if (!mounted) return;
         Navigator.of(context).pushReplacementNamed(route);
       },
     );
-    if (!shown) {
-      Navigator.of(context).pushReplacementNamed(route);
-    }
   }
 
   @override
