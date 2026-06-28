@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     speed: 250.0,
     displayStyle: DisplayStyle.normal,
     blinkText: false,
-    blinkSpeed: 500.0,
+    blinkSpeed: 150.0,
   );
 
   static const double _inputFontSize = 18.0;

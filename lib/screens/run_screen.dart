@@ -30,7 +30,7 @@ class RunScreen extends StatefulWidget {
     this.speed = 50.0,
     this.displayStyle = DisplayStyle.normal,
     this.blinkText = false,
-    this.blinkSpeed = 500.0,
+    this.blinkSpeed = 150.0,
     this.scrollText = true,
   });
 

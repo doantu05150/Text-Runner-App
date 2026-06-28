@@ -24,7 +24,7 @@ class SavedItem {
     this.speed = 150.0,
     this.displayStyle = 'normal',
     this.blinkText = false,
-    this.blinkSpeed = 500.0,
+    this.blinkSpeed = 150.0,
     this.scrollText = true,
     required this.createdAt,
   });
@@ -56,7 +56,7 @@ class SavedItem {
     speed: (json['speed'] as num?)?.toDouble() ?? 150.0,
     displayStyle: json['displayStyle'] as String? ?? 'normal',
     blinkText: json['blinkText'] as bool? ?? false,
-    blinkSpeed: (json['blinkSpeed'] as num?)?.toDouble() ?? 500.0,
+    blinkSpeed: (json['blinkSpeed'] as num?)?.toDouble() ?? 150.0,
     scrollText: json['scrollText'] as bool? ?? true,
     createdAt: DateTime.parse(json['createdAt']),
   );

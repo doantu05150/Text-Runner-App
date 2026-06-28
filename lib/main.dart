@@ -117,7 +117,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               speed: args['speed'] as double? ?? 150.0,
               displayStyle: args['displayStyle'] as DisplayStyle? ?? DisplayStyle.normal,
               blinkText: args['blinkText'] as bool? ?? false,
-              blinkSpeed: args['blinkSpeed'] as double? ?? 500.0,
+              blinkSpeed: args['blinkSpeed'] as double? ?? 150.0,
               scrollText: args['scrollText'] as bool? ?? true,
             ),
           );

@@ -260,9 +260,9 @@ class _HomeSettingsDialogState extends State<_HomeSettingsDialog> {
                           ),
                           child: Slider(
                             value: _blinkSpeed,
-                            min: 100,
-                            max: 1000,
-                            divisions: 18,
+                            min: 50,
+                            max: 600,
+                            divisions: 11,
                             onChanged: (v) => setState(() => _blinkSpeed = v),
                           ),
                         ),
