@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/display_style.dart';
 import '../theme/app_theme.dart';
 
@@ -30,13 +31,23 @@ class QuickThemesGrid extends StatelessWidget {
     required this.currentBackgroundColor,
     required this.currentDisplayStyle,
     required this.onSelected,
+    this.lockedIndices = const {},
+    this.unlockedIndices = const {},
   });
 
   final List<QuickTheme> themes;
   final Color currentTextColor;
   final Color currentBackgroundColor;
   final DisplayStyle currentDisplayStyle;
-  final ValueChanged<QuickTheme> onSelected;
+
+  /// Called with the tile's index and theme when a tile is tapped.
+  final void Function(int index, QuickTheme theme) onSelected;
+
+  /// Indices that are reward-gated.
+  final Set<int> lockedIndices;
+
+  /// Subset of [lockedIndices] already unlocked (lock icon hidden).
+  final Set<int> unlockedIndices;
 
   static const List<QuickTheme> defaultThemes = [
     QuickTheme(
@@ -75,17 +86,21 @@ class QuickThemesGrid extends StatelessWidget {
         shrinkWrap: true,
         padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
-        children: themes.map((theme) {
+        children: List.generate(themes.length, (index) {
+          final theme = themes[index];
           final isSelected =
               currentBackgroundColor.toARGB32() == theme.backgroundColor.toARGB32() &&
                   currentTextColor.toARGB32() == theme.textColor.toARGB32() &&
                   currentDisplayStyle == DisplayStyle.led;
+          final showLock = lockedIndices.contains(index) &&
+              !unlockedIndices.contains(index);
           return _QuickThemeTile(
             theme: theme,
             isSelected: isSelected,
-            onTap: () => onSelected(theme),
+            locked: showLock,
+            onTap: () => onSelected(index, theme),
           );
-        }).toList(),
+        }),
       );
     });
   }
@@ -96,36 +111,64 @@ class _QuickThemeTile extends StatelessWidget {
     required this.theme,
     required this.isSelected,
     required this.onTap,
+    this.locked = false,
   });
 
   final QuickTheme theme;
   final bool isSelected;
+  final bool locked;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: theme.backgroundColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            theme.label,
-            style: TextStyle(
-              color: theme.textColor,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: theme.backgroundColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.border,
+                width: isSelected ? 1.5 : 1,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                theme.label,
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
-        ),
+          if (locked)
+            Positioned(
+              top: -6,
+              right: -6,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: SvgPicture.asset(
+                  'assets/icon/lock_ad.svg',
+                  width: 12,
+                  height: 12,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

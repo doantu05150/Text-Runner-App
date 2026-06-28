@@ -15,6 +15,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ads/home_bottom_native_ad.dart';
+import '../ads/global_rewarded_ad.dart';
+import '../ads/ad_ids.dart';
+import '../config/quick_items_config.dart';
+import '../services/quick_unlock_store.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,13 +64,162 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String _previewText = _defaultPreviewText;
   Timer? _debounceTimer;
 
+  // Quick items unlocked today (subset of QuickItemsConfig.lockedQuickItems).
+  Set<int> _unlockedQuickItems = {};
+
+  // True while the blocking "loading ad" dialog is on screen.
+  bool _rewardLoadingDialogOpen = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     HomeBottomNativeAd.preload();
+    _preloadReward();
+    _loadUnlockedQuickItems();
     _controller.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateInputHeight());
+  }
+
+  Future<void> _loadUnlockedQuickItems() async {
+    final unlocked = await QuickUnlockStore.loadUnlockedToday();
+    if (mounted) setState(() => _unlockedQuickItems = unlocked);
+  }
+
+  void _preloadReward() {
+    if (GlobalRewardedAd.isReady || GlobalRewardedAd.isLoading) return;
+    GlobalRewardedAd.loadAd(
+      adUnitId: AdIds.quickItemReward,
+      adPlacement: 'quick_item_unlock',
+    );
+  }
+
+  void _applyQuickTheme(QuickTheme theme) {
+    setState(() {
+      _settings = _settings.copyWith(
+        backgroundColor: theme.backgroundColor,
+        textColor: theme.textColor,
+        displayStyle: DisplayStyle.led,
+        blinkText: theme.blinkText,
+      );
+    });
+  }
+
+  void _onQuickThemeSelected(int index, QuickTheme theme) {
+    final locked = QuickItemsConfig.isLocked(index) &&
+        !_unlockedQuickItems.contains(index);
+    if (!locked) {
+      _applyQuickTheme(theme);
+      return;
+    }
+
+    if (GlobalRewardedAd.isReady) {
+      _showRewardThenApply(index, theme);
+    } else {
+      _showLoadingThenReward(index, theme);
+    }
+  }
+
+  /// Shows the cached rewarded ad and applies the theme only if earned.
+  void _showRewardThenApply(int index, QuickTheme theme) {
+    GlobalRewardedAd.showAd(
+      onEarned: (_, _) async {
+        final unlocked = await QuickUnlockStore.markUnlocked(index);
+        if (!mounted) return;
+        setState(() => _unlockedQuickItems = unlocked);
+        _applyQuickTheme(theme);
+      },
+      onDismissed: (_, earned) {
+        if (mounted && !earned) {
+          _showMessageDialog(LocaleController.instance.strings.rewardNotFinished);
+        }
+        // Preload for the next locked tap.
+        _preloadReward();
+      },
+    );
+  }
+
+  static const int _maxRewardLoadAttempts = 2;
+
+  /// Shows a full-screen blocking loader and tries to load the reward ad up to
+  /// [_maxRewardLoadAttempts] times. If all attempts fail the theme is applied
+  /// once without persisting the unlock, so the next selection requires
+  /// watching an ad again.
+  void _showLoadingThenReward(int index, QuickTheme theme) {
+    _openLoadingDialog();
+    _attemptRewardLoad(index, theme, 1);
+  }
+
+  void _attemptRewardLoad(int index, QuickTheme theme, int attempt) {
+    GlobalRewardedAd.loadAd(
+      adUnitId: AdIds.quickItemReward,
+      adPlacement: 'quick_item_unlock',
+      onLoaded: (_) {
+        _closeLoadingDialog();
+        _showRewardThenApply(index, theme);
+      },
+      onLoadFailed: (_, _) {
+        if (attempt < _maxRewardLoadAttempts) {
+          _attemptRewardLoad(index, theme, attempt + 1);
+          return;
+        }
+        // All attempts failed: grant a one-time unlock (apply without
+        // persisting) and preload for the next selection.
+        _closeLoadingDialog();
+        _applyQuickTheme(theme);
+        _preloadReward();
+      },
+    );
+  }
+
+  void _openLoadingDialog() {
+    if (_rewardLoadingDialogOpen || !mounted) return;
+    _rewardLoadingDialogOpen = true;
+    final t = LocaleController.instance.strings;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      builder: (_) => PopScope(
+        canPop: false,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: AppColors.primary),
+              const SizedBox(height: 16),
+              Text(
+                t.loadingAd,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _closeLoadingDialog() {
+    if (!_rewardLoadingDialogOpen) return;
+    _rewardLoadingDialogOpen = false;
+    if (mounted) Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  void _showMessageDialog(String message) {
+    final t = LocaleController.instance.strings;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(t.ok),
+          ),
+        ],
+      ),
+    );
   }
 
   void _onTextChanged() {
@@ -269,16 +422,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           currentTextColor: _settings.textColor,
                           currentBackgroundColor: _settings.backgroundColor,
                           currentDisplayStyle: _settings.displayStyle,
-                          onSelected: (theme) {
-                            setState(() {
-                              _settings = _settings.copyWith(
-                                backgroundColor: theme.backgroundColor,
-                                textColor: theme.textColor,
-                                displayStyle: DisplayStyle.led,
-                                blinkText: theme.blinkText,
-                              );
-                            });
-                          },
+                          lockedIndices:
+                              QuickItemsConfig.lockedQuickItems.toSet(),
+                          unlockedIndices: _unlockedQuickItems,
+                          onSelected: _onQuickThemeSelected,
                         ),
                         const SizedBox(height: 12),
                         // Input section

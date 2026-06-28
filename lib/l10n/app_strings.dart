@@ -61,6 +61,10 @@ class AppStrings {
   String get scrollText => _m['scrollText']!;
   String get home => _m['home']!;
   String get inputHint => _m['inputHint']!;
+  String get ok => _m['ok']!;
+  String get loadingAd => _m['loadingAd']!;
+  String get rewardNotFinished => _m['rewardNotFinished']!;
+  String get rewardLoadFailed => _m['rewardLoadFailed']!;
 
   static const Map<String, Map<String, String>> _all = {
     'en': {
@@ -95,6 +99,10 @@ class AppStrings {
       'saveTextTooltip': 'Save text',
       'scrollText': 'Scroll text',
       'inputHint': 'Your text',
+      'ok': 'OK',
+      'loadingAd': 'Loading ad…',
+      'rewardNotFinished': 'Watch the full ad to unlock this style.',
+      'rewardLoadFailed': 'Could not load ad. Please try again later.',
     },
     'id': {
       'home': 'Beranda',
@@ -128,6 +136,10 @@ class AppStrings {
       'saveTextTooltip': 'Simpan teks',
       'scrollText': 'Gulir teks',
       'inputHint': 'Teks Anda',
+      'ok': 'OK',
+      'loadingAd': 'Memuat iklan…',
+      'rewardNotFinished': 'Tonton iklan sampai selesai untuk membuka gaya ini.',
+      'rewardLoadFailed': 'Gagal memuat iklan. Coba lagi nanti.',
     },
     'ja': {
       'home': 'ホーム',
@@ -161,6 +173,10 @@ class AppStrings {
       'saveTextTooltip': 'テキストを保存',
       'scrollText': 'スクロール',
       'inputHint': 'テキストを入力',
+      'ok': 'OK',
+      'loadingAd': '広告を読み込み中…',
+      'rewardNotFinished': 'このスタイルを解除するには広告を最後までご覧ください。',
+      'rewardLoadFailed': '広告を読み込めませんでした。後でもう一度お試しください。',
     },
     'ko': {
       'home': '홈',
@@ -194,6 +210,10 @@ class AppStrings {
       'saveTextTooltip': '텍스트 저장',
       'scrollText': '텍스트 스크롤',
       'inputHint': '텍스트 입력',
+      'ok': '확인',
+      'loadingAd': '광고 로드 중…',
+      'rewardNotFinished': '이 스타일을 잠금 해제하려면 광고를 끝까지 시청하세요.',
+      'rewardLoadFailed': '광고를 불러오지 못했습니다. 나중에 다시 시도하세요.',
     },
     'zh': {
       'home': '主页',
@@ -227,6 +247,10 @@ class AppStrings {
       'saveTextTooltip': '保存文本',
       'scrollText': '滚动文字',
       'inputHint': '你的文字',
+      'ok': '确定',
+      'loadingAd': '正在加载广告…',
+      'rewardNotFinished': '看完整个广告即可解锁此样式。',
+      'rewardLoadFailed': '无法加载广告，请稍后再试。',
     },
     'es_MX': {
       'home': 'Inicio',
@@ -260,6 +284,10 @@ class AppStrings {
       'saveTextTooltip': 'Guardar texto',
       'scrollText': 'Desplazar texto',
       'inputHint': 'Tu texto',
+      'ok': 'OK',
+      'loadingAd': 'Cargando anuncio…',
+      'rewardNotFinished': 'Mira el anuncio completo para desbloquear este estilo.',
+      'rewardLoadFailed': 'No se pudo cargar el anuncio. Inténtalo más tarde.',
     },
     'th': {
       'home': 'หน้าหลัก',
@@ -293,6 +321,10 @@ class AppStrings {
       'saveTextTooltip': 'บันทึกข้อความ',
       'scrollText': 'เลื่อนข้อความ',
       'inputHint': 'ข้อความของคุณ',
+      'ok': 'ตกลง',
+      'loadingAd': 'กำลังโหลดโฆษณา…',
+      'rewardNotFinished': 'ดูโฆษณาให้จบเพื่อปลดล็อกสไตล์นี้',
+      'rewardLoadFailed': 'โหลดโฆษณาไม่สำเร็จ โปรดลองอีกครั้งภายหลัง',
     },
     'fil': {
       'home': 'Home',
@@ -326,6 +358,10 @@ class AppStrings {
       'saveTextTooltip': 'I-save ang teksto',
       'scrollText': 'Mag-scroll ng teksto',
       'inputHint': 'Iyong teksto',
+      'ok': 'OK',
+      'loadingAd': 'Naglo-load ng ad…',
+      'rewardNotFinished': 'Panoorin ang buong ad para i-unlock ang style na ito.',
+      'rewardLoadFailed': 'Hindi ma-load ang ad. Subukan ulit mamaya.',
     },
     'hi': {
       'home': 'होम',
@@ -359,6 +395,10 @@ class AppStrings {
       'saveTextTooltip': 'टेक्स्ट सहेजें',
       'scrollText': 'स्क्रॉल टेक्स्ट',
       'inputHint': 'आपका टेक्स्ट',
+      'ok': 'ठीक है',
+      'loadingAd': 'विज्ञापन लोड हो रहा है…',
+      'rewardNotFinished': 'इस स्टाइल को अनलॉक करने के लिए पूरा विज्ञापन देखें।',
+      'rewardLoadFailed': 'विज्ञापन लोड नहीं हो सका। बाद में पुनः प्रयास करें।',
     },
     'vi': {
       'home': 'Trang chủ',
@@ -392,6 +432,10 @@ class AppStrings {
       'saveTextTooltip': 'Lưu văn bản',
       'scrollText': 'Cuộn chữ',
       'inputHint': 'Văn bản của bạn',
+      'ok': 'OK',
+      'loadingAd': 'Đang tải quảng cáo…',
+      'rewardNotFinished': 'Xem hết quảng cáo để mở khoá kiểu này.',
+      'rewardLoadFailed': 'Không tải được quảng cáo. Vui lòng thử lại sau.',
     },
     'es': {
       'home': 'Inicio',
@@ -425,6 +469,10 @@ class AppStrings {
       'saveTextTooltip': 'Guardar texto',
       'scrollText': 'Desplazar texto',
       'inputHint': 'Tu texto',
+      'ok': 'OK',
+      'loadingAd': 'Cargando anuncio…',
+      'rewardNotFinished': 'Mira el anuncio completo para desbloquear este estilo.',
+      'rewardLoadFailed': 'No se pudo cargar el anuncio. Inténtalo más tarde.',
     },
     'fr': {
       'home': 'Accueil',
@@ -458,6 +506,10 @@ class AppStrings {
       'saveTextTooltip': 'Enregistrer le texte',
       'scrollText': 'Défilement du texte',
       'inputHint': 'Votre texte',
+      'ok': 'OK',
+      'loadingAd': 'Chargement de la pub…',
+      'rewardNotFinished': 'Regardez la pub en entier pour débloquer ce style.',
+      'rewardLoadFailed': 'Impossible de charger la publicité. Réessayez plus tard.',
     },
     'ru': {
       'home': 'Главная',
@@ -491,6 +543,10 @@ class AppStrings {
       'saveTextTooltip': 'Сохранить текст',
       'scrollText': 'Прокрутка текста',
       'inputHint': 'Ваш текст',
+      'ok': 'OK',
+      'loadingAd': 'Загрузка рекламы…',
+      'rewardNotFinished': 'Посмотрите рекламу полностью, чтобы разблокировать этот стиль.',
+      'rewardLoadFailed': 'Не удалось загрузить рекламу. Повторите попытку позже.',
     },
   };
 }
