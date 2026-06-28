@@ -10,16 +10,15 @@ plugins {
 
 val keyPropertiesFile = project.file("key.properties")
 val keyProperties = Properties()
-if (keyPropertiesFile.exists()) {
+val hasKeyProperties = keyPropertiesFile.exists()
+if (hasKeyProperties) {
     keyProperties.load(FileInputStream(keyPropertiesFile))
-} else {
-    throw GradleException("key.properties not found at: ${keyPropertiesFile.absolutePath}")
 }
 
 android {
     namespace = "com.hatustudio.glowtextifyled"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.1.12297006"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -39,17 +38,23 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keyProperties.getProperty("keyAlias")
-            keyPassword = keyProperties.getProperty("keyPassword")
-            storeFile = file(keyProperties.getProperty("storeFile"))
-            storePassword = keyProperties.getProperty("storePassword")
+        if (hasKeyProperties) {
+            create("release") {
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (hasKeyProperties) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
