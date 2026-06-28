@@ -24,9 +24,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  final TextEditingController _controller = TextEditingController(
-    text: 'Hello, GlowTextify!',
-  );
+  // Shown in the preview when the input is empty.
+  static const String _defaultPreviewText = 'Hello, GlowTextify!';
+
+  final TextEditingController _controller = TextEditingController();
 
   // Tracks soft-keyboard visibility so we can hide the bottom native ad
   // (it would otherwise overlay the home content) and force a fresh ad
@@ -56,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   double _inputHeight = _minInputHeight;
 
   // Preview (debounced)
-  String _previewText = 'Hello, GlowTextify!';
+  String _previewText = _defaultPreviewText;
   Timer? _debounceTimer;
 
   @override
@@ -72,7 +73,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _updateInputHeight();
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(seconds: 1), () {
-      if (mounted) setState(() => _previewText = _controller.text);
+      if (mounted) {
+        setState(() => _previewText =
+            _controller.text.isEmpty ? _defaultPreviewText : _controller.text);
+      }
     });
   }
 
@@ -287,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           verticalPadding: _verticalPadding,
                           onChanged: _onTextChanged,
                           shouldExpand: false,
+                          hintText: t.inputHint,
                         ),
                         const SizedBox(height: 16),
 

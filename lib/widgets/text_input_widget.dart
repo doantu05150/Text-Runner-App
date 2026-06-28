@@ -11,6 +11,7 @@ class TextInputWidget extends StatelessWidget {
   final double verticalPadding;
   final void Function()? onChanged;
   final bool shouldExpand;
+  final String hintText;
 
   const TextInputWidget({
     super.key,
@@ -22,6 +23,7 @@ class TextInputWidget extends StatelessWidget {
     required this.verticalPadding,
     this.onChanged,
     this.shouldExpand = false,
+    required this.hintText,
   });
 
   @override
@@ -56,7 +58,7 @@ class TextInputWidget extends StatelessWidget {
         height: 1.2,
       )),
       decoration: InputDecoration(
-        hintText: 'Nhập văn bản...',
+        hintText: hintText,
         hintStyle: googleFontStyle(fontFamily, baseStyle: TextStyle(
           fontSize: fontSize,
           color: AppColors.textMuted,

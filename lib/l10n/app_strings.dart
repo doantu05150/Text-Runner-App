@@ -60,6 +60,7 @@ class AppStrings {
   String get saveTextTooltip => _m['saveTextTooltip']!;
   String get scrollText => _m['scrollText']!;
   String get home => _m['home']!;
+  String get inputHint => _m['inputHint']!;
 
   static const Map<String, Map<String, String>> _all = {
     'en': {
@@ -93,6 +94,7 @@ class AppStrings {
       'bgLabel': 'BG',
       'saveTextTooltip': 'Save text',
       'scrollText': 'Scroll text',
+      'inputHint': 'Your text',
     },
     'id': {
       'home': 'Beranda',
@@ -125,6 +127,7 @@ class AppStrings {
       'bgLabel': 'Latar',
       'saveTextTooltip': 'Simpan teks',
       'scrollText': 'Gulir teks',
+      'inputHint': 'Teks Anda',
     },
     'ja': {
       'home': 'ホーム',
@@ -157,6 +160,7 @@ class AppStrings {
       'bgLabel': '背景',
       'saveTextTooltip': 'テキストを保存',
       'scrollText': 'スクロール',
+      'inputHint': 'テキストを入力',
     },
     'ko': {
       'home': '홈',
@@ -189,6 +193,7 @@ class AppStrings {
       'bgLabel': '배경',
       'saveTextTooltip': '텍스트 저장',
       'scrollText': '텍스트 스크롤',
+      'inputHint': '텍스트 입력',
     },
     'zh': {
       'home': '主页',
@@ -221,6 +226,7 @@ class AppStrings {
       'bgLabel': '背景',
       'saveTextTooltip': '保存文本',
       'scrollText': '滚动文字',
+      'inputHint': '你的文字',
     },
     'es_MX': {
       'home': 'Inicio',
@@ -253,6 +259,7 @@ class AppStrings {
       'bgLabel': 'Fondo',
       'saveTextTooltip': 'Guardar texto',
       'scrollText': 'Desplazar texto',
+      'inputHint': 'Tu texto',
     },
     'th': {
       'home': 'หน้าหลัก',
@@ -285,6 +292,7 @@ class AppStrings {
       'bgLabel': 'พื้นหลัง',
       'saveTextTooltip': 'บันทึกข้อความ',
       'scrollText': 'เลื่อนข้อความ',
+      'inputHint': 'ข้อความของคุณ',
     },
     'fil': {
       'home': 'Home',
@@ -317,6 +325,7 @@ class AppStrings {
       'bgLabel': 'BG',
       'saveTextTooltip': 'I-save ang teksto',
       'scrollText': 'Mag-scroll ng teksto',
+      'inputHint': 'Iyong teksto',
     },
     'hi': {
       'home': 'होम',
@@ -349,6 +358,7 @@ class AppStrings {
       'bgLabel': 'पृष्ठभूमि',
       'saveTextTooltip': 'टेक्स्ट सहेजें',
       'scrollText': 'स्क्रॉल टेक्स्ट',
+      'inputHint': 'आपका टेक्स्ट',
     },
     'vi': {
       'home': 'Trang chủ',
@@ -381,6 +391,7 @@ class AppStrings {
       'bgLabel': 'Nền',
       'saveTextTooltip': 'Lưu văn bản',
       'scrollText': 'Cuộn chữ',
+      'inputHint': 'Văn bản của bạn',
     },
     'es': {
       'home': 'Inicio',
@@ -413,6 +424,7 @@ class AppStrings {
       'bgLabel': 'Fondo',
       'saveTextTooltip': 'Guardar texto',
       'scrollText': 'Desplazar texto',
+      'inputHint': 'Tu texto',
     },
     'fr': {
       'home': 'Accueil',
@@ -445,6 +457,7 @@ class AppStrings {
       'bgLabel': 'Fond',
       'saveTextTooltip': 'Enregistrer le texte',
       'scrollText': 'Défilement du texte',
+      'inputHint': 'Votre texte',
     },
     'ru': {
       'home': 'Главная',
@@ -477,6 +490,7 @@ class AppStrings {
       'bgLabel': 'Фон',
       'saveTextTooltip': 'Сохранить текст',
       'scrollText': 'Прокрутка текста',
+      'inputHint': 'Ваш текст',
     },
   };
 }
