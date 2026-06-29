@@ -76,7 +76,7 @@ class OnboardingArtSave extends StatelessWidget {
 }
 
 const _white = Color(0xFFFFFFFF);
-Color _glass([double o = 0.22]) => _white.withValues(alpha: o);
+Color _glass(double o) => _white.withValues(alpha: o);
 
 class _EasyPainter extends CustomPainter {
   _EasyPainter(this.tint);
