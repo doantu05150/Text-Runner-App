@@ -7,8 +7,37 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../ads/ad_ids.dart';
 import '../ads/global_native_ad.dart';
 import '../ads/native_ad_cache.dart';
-import '../theme/app_theme.dart';
+import 'onboarding_art.dart';
 const String _firstLaunchDoneKey = 'app.first_launch_done';
+
+/// Fixed bright palette for onboarding (independent of app dark/light theme).
+class _OnbStyle {
+  const _OnbStyle(this.gradient, this.accent);
+  final List<Color> gradient;
+  final Color accent;
+}
+
+const _onbPage1Style =
+    _OnbStyle([Color(0xFFFF8A4C), Color(0xFFFF5E7E)], Color(0xFFFF5E7E));
+const _onbPage2Style =
+    _OnbStyle([Color(0xFF9B5CFF), Color(0xFFFF6FD8)], Color(0xFF9B5CFF));
+const _onbPage3Style =
+    _OnbStyle([Color(0xFF13C2C2), Color(0xFF3BD17A)], Color(0xFF13C2C2));
+
+const _onbPageBg = Color(0xFFFFFFFF);
+const _onbTitleColor = Color(0xFF23202B);
+const _onbBodyColor = Color(0xFF5C5866);
+
+const _onbTitleStyle = TextStyle(
+  fontSize: 24,
+  fontWeight: FontWeight.w800,
+  color: _onbTitleColor,
+);
+const _onbBodyStyle = TextStyle(
+  fontSize: 14.5,
+  height: 1.5,
+  color: _onbBodyColor,
+);
 
 /// Screen 1 of the first-run tour: "easy to use".
 class OnboardingPage1 extends StatelessWidget {
@@ -17,7 +46,6 @@ class OnboardingPage1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _OnboardingScaffold(
-      icon: Icons.touch_app_outlined,
       title: 'Easy to use',
       description:
           'Type your message and tap Play — that\'s it. GlowTextify turns '
@@ -25,6 +53,10 @@ class OnboardingPage1 extends StatelessWidget {
       buttonLabel: 'Next',
       myCacheKey: 'onb_native_1',
       nextCacheKey: 'onb_native_2',
+      gradientColors: _onbPage1Style.gradient,
+      accent: _onbPage1Style.accent,
+      illustration: OnboardingArtEasy(tint: _onbPage1Style.accent),
+      pageIndex: 0,
       onNext: (ctx) =>
           Navigator.of(ctx).pushReplacementNamed('/onboarding/2'),
     );
@@ -38,7 +70,6 @@ class OnboardingPage2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _OnboardingScaffold(
-      icon: Icons.palette_outlined,
       title: 'Make it yours',
       description:
           'Pick colors, backgrounds, fonts, speed and effects — tailor '
@@ -46,6 +77,10 @@ class OnboardingPage2 extends StatelessWidget {
       buttonLabel: 'Next',
       myCacheKey: 'onb_native_2',
       nextCacheKey: 'onb_native_3',
+      gradientColors: _onbPage2Style.gradient,
+      accent: _onbPage2Style.accent,
+      illustration: OnboardingArtCustomize(tint: _onbPage2Style.accent),
+      pageIndex: 1,
       onNext: (ctx) =>
           Navigator.of(ctx).pushReplacementNamed('/onboarding/3'),
     );
@@ -59,7 +94,6 @@ class OnboardingPage3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _OnboardingScaffold(
-      icon: Icons.bookmark_outline,
       title: 'Save your favorites',
       description:
           'Keep the messages you use often in Saved items and recall '
@@ -67,6 +101,10 @@ class OnboardingPage3 extends StatelessWidget {
       buttonLabel: 'Start',
       myCacheKey: 'onb_native_3',
       nextCacheKey: null,
+      gradientColors: _onbPage3Style.gradient,
+      accent: _onbPage3Style.accent,
+      illustration: OnboardingArtSave(tint: _onbPage3Style.accent),
+      pageIndex: 2,
       onNext: (ctx) async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(_firstLaunchDoneKey, true);
@@ -79,21 +117,27 @@ class OnboardingPage3 extends StatelessWidget {
 
 class _OnboardingScaffold extends StatefulWidget {
   const _OnboardingScaffold({
-    required this.icon,
     required this.title,
     required this.description,
     required this.buttonLabel,
     required this.myCacheKey,
     required this.nextCacheKey,
+    required this.gradientColors,
+    required this.accent,
+    required this.illustration,
+    required this.pageIndex,
     required this.onNext,
   });
 
-  final IconData icon;
   final String title;
   final String description;
   final String buttonLabel;
   final String myCacheKey;
   final String? nextCacheKey;
+  final List<Color> gradientColors;
+  final Color accent;
+  final Widget illustration;
+  final int pageIndex;
   final FutureOr<void> Function(BuildContext) onNext;
 
   @override
@@ -110,6 +154,7 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
   bool _adLoaded = false;
   bool _adHidden = false; // dismissed after timeout / failure
   bool _nextEnabled = false;
+  bool _entered = false;
 
   Timer? _delayTimer;
   Timer? _timeoutTimer;
@@ -140,6 +185,11 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
         _adHidden = true;
         _nextEnabled = true;
       });
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _entered = true);
     });
   }
 
@@ -178,52 +228,111 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgMain,
+      backgroundColor: _onbPageBg,
       body: SafeArea(
         child: Column(
           children: [
+            // Hero: gradient panel with the illustration.
             Expanded(
+              flex: 46,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: widget.gradientColors,
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(28),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(28),
+                  child: AnimatedSlide(
+                    offset: _entered ? Offset.zero : const Offset(0, 0.08),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCubic,
+                    child: AnimatedOpacity(
+                      opacity: _entered ? 1 : 0,
+                      duration: const Duration(milliseconds: 500),
+                      child: widget.illustration,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Body: title + description + dots + button.
+            Expanded(
+              flex: 54,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.fromLTRB(28, 24, 28, 8),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(widget.icon, size: 96, color: AppColors.primary),
-                    const SizedBox(height: 28),
-                    Text(
-                      widget.title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                    const Spacer(),
+                    AnimatedSlide(
+                      offset: _entered ? Offset.zero : const Offset(0, 0.12),
+                      duration: const Duration(milliseconds: 650),
+                      curve: Curves.easeOutCubic,
+                      child: AnimatedOpacity(
+                        opacity: _entered ? 1 : 0,
+                        duration: const Duration(milliseconds: 650),
+                        child: Column(
+                          children: [
+                            Text(
+                              widget.title,
+                              textAlign: TextAlign.center,
+                              style: _onbTitleStyle,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              widget.description,
+                              textAlign: TextAlign.center,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: _onbBodyStyle,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 14),
-                    Text(
-                      widget.description,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.45,
-                        color: AppColors.textSecondary,
+                    const Spacer(),
+                    OnboardingDots(
+                      count: 3,
+                      activeIndex: widget.pageIndex,
+                      activeColor: widget.accent,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.accent,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              widget.accent.withValues(alpha: 0.4),
+                          disabledForegroundColor:
+                              Colors.white.withValues(alpha: 0.8),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        onPressed:
+                            _nextEnabled ? () => widget.onNext(context) : null,
+                        child: Text(widget.buttonLabel),
                       ),
                     ),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed:
-                      _nextEnabled ? () => widget.onNext(context) : null,
-                  child: Text(widget.buttonLabel),
-                ),
-              ),
-            ),
+            // Native ad pinned at the bottom (UNCHANGED behavior).
             SizedBox(
               child: (_mountAd && !_adHidden)
                   ? GlobalNativeAd(
