@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'ad_ids.dart';
-import 'global_inter_ad.dart' show AdPlacementCallback;
+import 'global_inter_ad.dart' show AdPlacementCallback, AdLoadFailedCallback;
 import 'global_native_ad.dart';
 import 'native_ad_cache.dart';
 
@@ -15,11 +15,18 @@ import 'native_ad_cache.dart';
 class HomeBottomNativeAd extends StatelessWidget {
   const HomeBottomNativeAd({
     super.key,
+    this.adUnitId = AdIds.homeBottomNative,
     this.placement = 'home_bottom',
     this.cacheKey = 'home_bottom',
     this.cacheAutoRefill = true,
     this.onLoaded,
+    this.onLoadFailed,
   });
+
+  /// AdMob native ad unit id. Defaults to the home-bottom unit; override
+  /// when reusing this layout on a different screen with its own unit
+  /// (e.g. the Saved screen native placement).
+  final String adUnitId;
 
   /// Analytics label passed through to [GlobalNativeAd]. Override when
   /// reusing this layout on a different screen (e.g. `'settings_bottom'`).
@@ -39,8 +46,10 @@ class HomeBottomNativeAd extends StatelessWidget {
   /// for gating UI affordances like an enabled "Next" button.
   final AdPlacementCallback? onLoaded;
 
-  // Google test native ad unit id.
-  static const String _adUnitId = AdIds.homeBottomNative;
+  /// Fires if the ad fails to load. Lets callers drop the slot from a
+  /// list so it doesn't leave an empty gap.
+  final AdLoadFailedCallback? onLoadFailed;
+
   static const String _factoryId = AdIds.nativeFactoryId;
 
   // Internal element heights (must match the native factory layout).
@@ -56,10 +65,13 @@ class HomeBottomNativeAd extends StatelessWidget {
   /// Warm the [NativeAdCache] for this placement so the next instance
   /// of this widget can render instantly. Safe to call multiple times;
   /// no-op if the cache is already filled or a load is in flight.
-  static void preload({String key = defaultCacheKey}) {
+  static void preload({
+    String key = defaultCacheKey,
+    String adUnitId = AdIds.homeBottomNative,
+  }) {
     NativeAdCache.preload(
       key: key,
-      adUnitId: _adUnitId,
+      adUnitId: adUnitId,
       factoryId: _factoryId,
     );
   }
@@ -94,13 +106,14 @@ class HomeBottomNativeAd extends StatelessWidget {
             + _ctaHeight;
 
         return GlobalNativeAd(
-          adUnitId: _adUnitId,
+          adUnitId: adUnitId,
           factoryId: _factoryId,
           adPlacement: placement,
           useCache: true,
           cacheKey: cacheKey,
           cacheAutoRefill: cacheAutoRefill,
           onLoaded: onLoaded,
+          onLoadFailed: onLoadFailed,
           content: (ad) => Container(
             width: double.infinity,
             color: const Color(0xFF121821),

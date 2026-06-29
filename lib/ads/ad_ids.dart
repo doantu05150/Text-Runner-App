@@ -7,6 +7,7 @@ class AdIds {
   static const String homeToSavedInter = 'ca-app-pub-2729665939843867/6473280323';
   static const String splashInter = 'ca-app-pub-2729665939843867/6620478738';
   static const String savedListBanner = 'ca-app-pub-2729665939843867/7619820978';
+  static const String savedScreenNative = 'ca-app-pub-3940256099942544/2247696110'; // 'ca-app-pub-2729665939843867/6936931672';
   static const String quickItemReward = 'ca-app-pub-2729665939843867/9407826543';
 
   static const String nativeFactoryId = 'homeBottomNativeAd';
