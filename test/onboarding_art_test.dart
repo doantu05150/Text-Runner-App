@@ -46,4 +46,26 @@ void main() {
           reason: 'active dot should use activeColor');
     });
   });
+
+  group('illustrations', () {
+    Future<void> pumpArt(WidgetTester tester, Widget art) async {
+      await _pump(tester, SizedBox(width: 200, height: 200, child: art));
+      expect(tester.takeException(), isNull);
+    }
+
+    testWidgets('OnboardingArtEasy paints', (tester) async {
+      await pumpArt(tester, const OnboardingArtEasy(tint: Color(0xFFFF5E7E)));
+      expect(find.byType(OnboardingArtEasy), findsOneWidget);
+    });
+
+    testWidgets('OnboardingArtCustomize paints', (tester) async {
+      await pumpArt(tester, const OnboardingArtCustomize(tint: Color(0xFF9B5CFF)));
+      expect(find.byType(OnboardingArtCustomize), findsOneWidget);
+    });
+
+    testWidgets('OnboardingArtSave paints', (tester) async {
+      await pumpArt(tester, const OnboardingArtSave(tint: Color(0xFF13C2C2)));
+      expect(find.byType(OnboardingArtSave), findsOneWidget);
+    });
+  });
 }
