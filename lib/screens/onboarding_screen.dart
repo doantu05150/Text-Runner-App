@@ -28,6 +28,17 @@ const _onbPageBg = Color(0xFFFFFFFF);
 const _onbTitleColor = Color(0xFF23202B);
 const _onbBodyColor = Color(0xFF5C5866);
 
+const _onbTitleStyle = TextStyle(
+  fontSize: 24,
+  fontWeight: FontWeight.w800,
+  color: _onbTitleColor,
+);
+const _onbBodyStyle = TextStyle(
+  fontSize: 14.5,
+  height: 1.5,
+  color: _onbBodyColor,
+);
+
 /// Screen 1 of the first-run tour: "easy to use".
 class OnboardingPage1 extends StatelessWidget {
   const OnboardingPage1({super.key});
@@ -143,6 +154,7 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
   bool _adLoaded = false;
   bool _adHidden = false; // dismissed after timeout / failure
   bool _nextEnabled = false;
+  bool _entered = false;
 
   Timer? _delayTimer;
   Timer? _timeoutTimer;
@@ -173,6 +185,11 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
         _adHidden = true;
         _nextEnabled = true;
       });
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _entered = true);
     });
   }
 
@@ -232,7 +249,16 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(28),
-                  child: widget.illustration,
+                  child: AnimatedSlide(
+                    offset: _entered ? Offset.zero : const Offset(0, 0.08),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCubic,
+                    child: AnimatedOpacity(
+                      opacity: _entered ? 1 : 0,
+                      duration: const Duration(milliseconds: 500),
+                      child: widget.illustration,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -244,23 +270,30 @@ class _OnboardingScaffoldState extends State<_OnboardingScaffold> {
                 child: Column(
                   children: [
                     const Spacer(),
-                    Text(
-                      widget.title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: _onbTitleColor,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      widget.description,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 14.5,
-                        height: 1.5,
-                        color: _onbBodyColor,
+                    AnimatedSlide(
+                      offset: _entered ? Offset.zero : const Offset(0, 0.12),
+                      duration: const Duration(milliseconds: 650),
+                      curve: Curves.easeOutCubic,
+                      child: AnimatedOpacity(
+                        opacity: _entered ? 1 : 0,
+                        duration: const Duration(milliseconds: 650),
+                        child: Column(
+                          children: [
+                            Text(
+                              widget.title,
+                              textAlign: TextAlign.center,
+                              style: _onbTitleStyle,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              widget.description,
+                              textAlign: TextAlign.center,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: _onbBodyStyle,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const Spacer(),
